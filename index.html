@@ -100,23 +100,31 @@
     position:absolute;
     display:flex; align-items:center; justify-content:center;
     flex-direction:column; gap:2px;
-    border-radius:50%;
-    background: var(--panel);
-    border:1px solid var(--line-strong);
     cursor:pointer;
     color:var(--text);
     text-align:center;
-    box-shadow: 0 10px 30px -12px rgba(0,0,0,.6);
     will-change: transform;
   }
-  .city-node .n-name{ font-family:'Fraunces', serif; font-weight:600; font-size:1rem; }
-  .city-node .n-count{ font-family:'JetBrains Mono', monospace; font-size:.62rem; color: var(--text-dim); letter-spacing:.05em; margin-top:2px; }
-  .city-node.hovered{ background: var(--panel-light); border-color: var(--dawn); }
+  .city-node .city-base,
+  .city-node .ripple-echo{ position:absolute; inset:0; pointer-events:none; }
+  .city-node .city-base svg,
+  .city-node .ripple-echo svg{
+    width:100%; height:100%; display:block; overflow:visible;
+    filter: drop-shadow(0 12px 24px rgba(0,0,0,.55));
+  }
+  .city-node .city-base path{
+    fill: var(--panel);
+    stroke: var(--line-strong);
+    stroke-width: 2;
+    transition: fill .25s, stroke .25s;
+  }
+  .city-node .n-name{ position:relative; z-index:1; font-family:'Fraunces', serif; font-weight:600; font-size:.95rem; }
+  .city-node .n-count{ position:relative; z-index:1; font-family:'JetBrains Mono', monospace; font-size:.6rem; color: var(--text-dim); letter-spacing:.05em; margin-top:2px; }
+  .city-node.hovered .city-base path{ fill: var(--panel-light); stroke: var(--dawn); }
   .city-node.hovered .n-count{ color: var(--dawn); }
 
-  .city-node .ripple-echo{
-    position:absolute; inset:-14px; border-radius:50%; border:1px solid var(--line); opacity:0; pointer-events:none;
-  }
+  .city-node .ripple-echo{ opacity:0; }
+  .city-node .ripple-echo path{ fill:none; stroke: var(--line); stroke-width:1.5; }
 
   /* ---------------- MAP VIEW ---------------- */
   #mapView{ display:none; }
@@ -273,7 +281,7 @@
         <span class="line">აირჩიე <span class="plain">ქალაქი</span>,</span>
         <span class="line">იპოვე <em>შენი</em> ადგილი.</span>
       </h1>
-      <p id="heroP">ყოველი წრე — ტალღაა წყალზე. დააჭირე ქალაქს და ნახავ სათევზაო ადგილებს რუკაზე, კონკრეტული თევზის სახეობის მიხედვით გაფილტრულს.</p>
+      <p id="heroP">ყოველი კონტური — ქალაქის ანარეკლია წყალზე. დააჭირე ქალაქს და ნახავ სათევზაო ადგილებს რუკაზე, კონკრეტული თევზის სახეობის მიხედვით გაფილტრულს.</p>
     </div>
 
     <div class="pond">
@@ -330,6 +338,7 @@
 const CITIES = [
   {
     id:'tbilisi', name:'თბილისი', lat:41.7151, lng:44.8271, zoom:11,
+    shape:'M62,6 C76,10 88,18 92,30 C96,40 88,44 92,54 C96,62 92,66 88,74 C84,82 86,90 80,98 C74,106 62,114 52,110 C42,106 38,96 30,90 C20,84 16,74 20,64 C24,54 34,52 30,42 C26,32 34,24 42,18 C50,12 52,8 62,6 Z',
     spots:[
       { name:'თბილისის ზღვა', lat:41.8256, lng:44.7622, fish:['კობრი','სუთხო','ქაშაყი'], desc:'დიდი წყალსაცავი დედაქალაქის ჩრდილოეთით — მშვიდი ნაპირები და ღრმა ნაწილები.' },
       { name:'მტკვარი, ავლაბრის მონაკვეთი', lat:41.6934, lng:44.8236, fish:['ორაგული','ლოქო','მარინკა'], desc:'სწრაფი დინება ცენტრში — კარგია სპინინგით სათევზაოდ.' },
@@ -338,6 +347,7 @@ const CITIES = [
   },
   {
     id:'batumi', name:'ბათუმი', lat:41.6168, lng:41.6367, zoom:11,
+    shape:'M30,52 C44,44 64,40 80,45 C92,48 102,54 104,62 C106,70 99,76 90,79 C80,83 62,86 48,84 C34,82 22,77 18,70 C14,64 16,56 30,52 Z',
     spots:[
       { name:'ბათუმის სანაპირო', lat:41.6300, lng:41.6250, fish:['სტავრიდა','ლუფარი','ქაფშია'], desc:'შავი ზღვის სანაპირო — საღამოს საათებში ყველაზე აქტიურია ბადობა.' },
       { name:'ჭოროხის შესართავი', lat:41.5766, lng:41.5561, fish:['ორაგული','კალმახი'], desc:'მთის მდინარის შესართავი ზღვასთან — სუფთა, ცივი წყალი.' },
@@ -346,6 +356,7 @@ const CITIES = [
   },
   {
     id:'kutaisi', name:'ქუთაისი', lat:42.2679, lng:42.7180, zoom:11,
+    shape:'M36,42 C46,32 66,30 82,36 C94,42 96,54 92,64 C88,76 78,86 64,92 C50,97 36,90 30,78 C24,64 26,50 36,42 Z',
     spots:[
       { name:'რიონის ხეობა', lat:42.2679, lng:42.7180, fish:['მარინკა','კალმახი'], desc:'იმერეთის მთავარი მდინარე — ქვიან კალაპოტში კარგი დინებაა.' },
       { name:'წყალწითელას კანიონი', lat:42.3350, lng:42.6100, fish:['კალმახი'], desc:'მთის ცივწყლიანი ხევი, კალმახის საყვარელი ჰაბიტატი.' },
@@ -353,6 +364,7 @@ const CITIES = [
   },
   {
     id:'poti', name:'ფოთი', lat:42.1462, lng:41.6714, zoom:11,
+    shape:'M22,46 C36,36 60,32 80,38 C94,42 102,50 104,60 C106,70 96,78 82,82 C64,87 40,86 28,80 C16,74 12,56 22,46 Z',
     spots:[
       { name:'ფალიასტომის ტბა', lat:42.0989, lng:41.6486, fish:['კობრი','სუთხო','წვერა'], desc:'დიდი სანაპირო ტბა, კოლხეთის ეროვნული პარკის ნაწილი.' },
       { name:'შავი ზღვის სანაპირო, პორტთან', lat:42.1462, lng:41.6714, fish:['ლუფარი','სტავრიდა'], desc:'პორტის მიმდებარე სანაპირო, ხშირად ხალხმრავალი მაგრამ პროდუქტიული.' },
@@ -360,6 +372,7 @@ const CITIES = [
   },
   {
     id:'telavi', name:'თელავი', lat:41.9184, lng:45.4739, zoom:10,
+    shape:'M42,38 C52,30 72,32 84,40 C94,48 98,58 92,66 C88,74 78,82 66,84 C52,87 38,82 32,72 C26,62 32,46 42,38 Z',
     spots:[
       { name:'ალაზნის ველი', lat:41.9184, lng:45.6000, fish:['მარინკა','კობრი'], desc:'ღვინის რეგიონის მდინარე, თბილი და ნელი დინებით.' },
       { name:'ივრის წყალსაცავი', lat:41.6333, lng:45.9500, fish:['კობრი','ფაჰარი','სუთხო'], desc:'დიდი ხელოვნური ტბა კახეთის სამხრეთით.' },
@@ -367,6 +380,7 @@ const CITIES = [
   },
   {
     id:'zugdidi', name:'ზუგდიდი', lat:42.5088, lng:41.8709, zoom:10,
+    shape:'M46,34 C56,28 74,30 84,38 C92,46 94,58 88,68 C82,78 68,84 56,82 C44,79 34,70 32,60 C30,50 36,40 46,34 Z',
     spots:[
       { name:'ენგურის ხეობა', lat:42.7167, lng:41.8667, fish:['კალმახი','მარინკა'], desc:'სვანეთიდან ჩამომდინარე ცივი მთის მდინარე.' },
       { name:'ხობის ჭალები', lat:42.3167, lng:41.9000, fish:['კობრი','სუთხო'], desc:'ჭარბტენიანი დაბლობი, მშვიდი ნაპირისპირა თევზაობა.' },
@@ -383,7 +397,7 @@ const positions = [
   {x:'50%', y:'50%'}, {x:'50%', y:'12%'}, {x:'85%', y:'32%'},
   {x:'80%', y:'75%'}, {x:'20%', y:'78%'}, {x:'15%', y:'30%'},
 ];
-const sizes = [130, 108, 100, 104, 98, 100];
+const sizes = [150, 112, 102, 108, 98, 100];
 const ringSizes = [120, 260, 420, 600];
 
 ringSizes.forEach((s, i) => {
@@ -407,7 +421,7 @@ CITIES.forEach((c, i) => {
   node.style.height = s + 'px';
   node.style.left = positions[i].x;
   node.style.top = positions[i].y;
-  node.innerHTML = `<div class="ripple-echo"></div><span class="n-name">${c.name}</span><span class="n-count">${c.spots.length} ადგილი</span>`;
+  node.innerHTML = `<div class="city-base"><svg viewBox="0 0 120 120"><path d="${c.shape}"/></svg></div><div class="ripple-echo"><svg viewBox="0 0 120 120"><path d="${c.shape}"/></svg></div><span class="n-name">${c.name}</span><span class="n-count">${c.spots.length} ადგილი</span>`;
   field.appendChild(node);
   cityNodes.push(node);
 
