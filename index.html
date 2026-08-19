@@ -1,684 +1,1571 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ka">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ფერები და ქალაქები</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<style>
-:root{
-  --bg: #0d2117;
-  --panel: #15301f;
-  --panel-light: #1c3d27;
-  --dawn: #e8dcc0;
-  --moss: #9db591;
-  --text: #f1ecdd;
-  --text-dim: #a9b399;
-  --line: rgba(232,220,192,0.14);
-  --line-strong: rgba(232,220,192,0.26);
-}
-*{box-sizing:border-box; margin:0; padding:0;}
-html,body{height:100%;}
-body{
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  min-height:100vh;
-}
-::selection{ background: var(--dawn); color:#14261b; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>სითევზე</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg: #0d2117;
+        --panel: #15301f;
+        --panel-light: #1c3d27;
+        --dawn: #e8dcc0;
+        --moss: #9db591;
+        --text: #f1ecdd;
+        --text-dim: #a9b399;
+        --line: rgba(232, 220, 192, 0.14);
+        --line-strong: rgba(232, 220, 192, 0.26);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+      }
+      ::selection {
+        background: var(--dawn);
+        color: #14261b;
+      }
 
-header{
-  display:flex; align-items:center; justify-content:space-between;
-  padding: 28px clamp(20px,5vw,64px) 18px;
-  border-bottom: 1px solid var(--line);
-}
-.brand{ display:flex; align-items:center; gap:12px; }
-.brand svg{ width:32px; height:32px; }
-.brand-text{ display:flex; flex-direction:column; line-height:1; }
-.brand-text .name{ font-family:'Fraunces', serif; font-weight:700; font-size:1.3rem; }
-.brand-text .tag{ font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim); margin-top:4px; }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 28px clamp(20px, 5vw, 64px) 18px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand svg {
+        width: 32px;
+        height: 32px;
+      }
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+      }
+      .brand-text .name {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.3rem;
+      }
+      .brand-text .tag {
+        font-size: 0.66rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-top: 4px;
+      }
 
-.back-btn{
-  display:none; align-items:center; gap:8px; background: var(--panel); border:1px solid var(--line-strong);
-  color:var(--text); font-family:'Inter'; font-size:.85rem; padding:9px 16px; border-radius:8px; cursor:pointer;
-}
-.back-btn.show{ display:inline-flex; }
+      .back-btn {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        color: var(--text);
+        font-family: "Inter";
+        font-size: 0.85rem;
+        padding: 9px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .back-btn.show {
+        display: inline-flex;
+      }
 
-main{ padding: 8px clamp(20px,5vw,64px) 64px; }
+      main {
+        padding: 8px clamp(20px, 5vw, 64px) 64px;
+      }
 
-#selectView.hidden{ display:none; }
+      #selectView.hidden {
+        display: none;
+      }
 
-.hero-copy{ max-width:600px; margin: 34px 0 8px; }
-.eyebrow{ font-family:'JetBrains Mono', monospace; font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--dawn); }
-h1{
-  font-family:'Fraunces', serif; font-weight:700;
-  font-size: clamp(2rem, 4.4vw, 3.1rem); line-height:1.1; margin: 14px 0 14px;
-}
-h1 em{ font-style:italic; color: var(--dawn); font-weight:500; }
-.hero-copy p{ color:var(--text-dim); font-size:1rem; line-height:1.6; max-width:520px; }
+      .hero-copy {
+        max-width: 600px;
+        margin: 34px 0 8px;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--dawn);
+      }
+      h1 {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: clamp(2rem, 4.4vw, 3.1rem);
+        line-height: 1.1;
+        margin: 14px 0 14px;
+      }
+      h1 em {
+        font-style: italic;
+        color: var(--dawn);
+        font-weight: 500;
+      }
+      .hero-copy p {
+        color: var(--text-dim);
+        font-size: 1rem;
+        line-height: 1.6;
+        max-width: 520px;
+      }
 
-.pond{
-  position:relative;
-  width:100%;
-  min-height: 560px;
-  margin-top: 40px;
-}
-.ripple-field{ position:relative; width:100%; height:100%; max-width:920px; margin:0 auto; min-height:560px; }
+      .hero-stats {
+        display: flex;
+        gap: 36px;
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+        flex-wrap: wrap;
+      }
+      .hero-stats .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .hero-stats b {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.7rem;
+        line-height: 1;
+        color: var(--dawn);
+      }
+      .hero-stats span {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+      }
 
-.city-node{
-  position:absolute;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer;
-  text-align:center;
-}
-.shape-wrap{
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-}
-.shape-wrap svg{ width:100%; height:100%; overflow:visible; }
-.city-shape path{
-  fill: var(--panel); fill-opacity:1;
-  stroke: var(--line-strong); stroke-width:1.6; vector-effect:non-scaling-stroke;
-}
-.city-node.hovered .city-shape path{ fill: var(--panel-light); stroke: var(--dawn); }
-.placeholder-shape{
-  position:absolute; inset:12%; border-radius:20%; background: var(--panel); border:1px solid var(--line-strong);
-}
-.city-node.hovered .placeholder-shape{ background: var(--panel-light); border-color: var(--dawn); }
+      .pond-hint {
+        text-align: center;
+        margin-top: 34px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.76rem;
+        letter-spacing: 0.06em;
+        color: var(--text-dim);
+      }
+      .pond-hint b {
+        color: var(--dawn);
+        font-weight: 500;
+      }
+      .pond {
+        position: relative;
+        width: 100%;
+        height: 560px;
+        margin-top: 10px;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid var(--line-strong);
+        background: var(--bg);
+      }
+      .georgia-map {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      .georgia-map svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
 
-.node-label{
-  position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:2px;
-  pointer-events:none;
-}
-.node-label .n-name{ font-family:'Fraunces', serif; font-weight:700; font-size:.9rem; }
-.node-label .n-count{ font-family:'JetBrains Mono', monospace; font-size:.58rem; color: var(--text-dim); }
-.city-node.hovered .node-label .n-count{ color: var(--dawn); }
+      .country-shape path {
+        fill: var(--panel);
+        stroke: rgba(232, 220, 192, 0.35);
+        stroke-width: 0.4;
+      }
+      .country-shape .other-dot {
+        fill: var(--panel-light);
+        stroke: rgba(232, 220, 192, 0.3);
+        stroke-width: 0.12;
+        opacity: 0.55;
+      }
 
-#mapView{ display:none; }
-#mapView.show{ display:block; }
+      /* known city — glowing organic area, clickable */
+      .city-shape-node {
+        cursor: pointer;
+      }
+      .city-shape-node path {
+        fill: var(--dawn);
+        fill-opacity: 0.82;
+        stroke: var(--dawn);
+        stroke-width: 0.3;
+        filter: drop-shadow(0 0 2.5px rgba(232, 220, 192, 0.75))
+          drop-shadow(0 0 6px rgba(232, 220, 192, 0.4));
+        animation: shape-glow 2.6s ease-in-out infinite;
+      }
+      @keyframes shape-glow {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 2px rgba(232, 220, 192, 0.6))
+            drop-shadow(0 0 5px rgba(232, 220, 192, 0.32));
+        }
+        50% {
+          filter: drop-shadow(0 0 3.5px rgba(232, 220, 192, 0.95))
+            drop-shadow(0 0 8px rgba(232, 220, 192, 0.5));
+        }
+      }
+      .city-shape-node:hover path {
+        fill-opacity: 1;
+      }
+      .city-shape-node .shape-label {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 2.3px;
+        fill: var(--dawn);
+        paint-order: stroke;
+        stroke: rgba(13, 33, 23, 0.7);
+        stroke-width: 0.5px;
+        pointer-events: none;
+      }
+      .city-shape-node .shape-count {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.5px;
+        fill: var(--text-dim);
+        pointer-events: none;
+      }
 
-.city-switcher{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
-.switch-chip{
-  font-family:'JetBrains Mono', monospace; font-size:.74rem; padding:7px 13px; border-radius:8px;
-  border:1px solid var(--line); background: var(--panel); color:var(--text-dim); cursor:pointer;
-}
-.switch-chip.active{ border-color: var(--dawn); color: var(--dawn); background: var(--panel-light); }
+      #mapView {
+        display: none;
+      }
+      #mapView.show {
+        display: block;
+      }
 
-.map-head{ margin-bottom:18px; }
-.map-head h2{ font-family:'Fraunces', serif; font-weight:700; font-size:1.9rem; }
-.map-head .sub{ color:var(--text-dim); font-size:.88rem; font-family:'JetBrains Mono', monospace; margin-top:4px; }
+      .city-switcher {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 22px;
+      }
+      .switch-chip {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.74rem;
+        padding: 7px 13px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text-dim);
+        cursor: pointer;
+      }
+      .switch-chip.active {
+        border-color: var(--dawn);
+        color: var(--dawn);
+        background: var(--panel-light);
+      }
 
-.filters{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-.chip{
-  font-family:'Inter'; font-size:.82rem; padding:7px 14px; border-radius:8px;
-  border:1px solid var(--line-strong); background: var(--panel); color:var(--text-dim);
-  cursor:pointer; user-select:none;
-}
-.chip:hover{ border-color: var(--dawn); color:var(--text); }
-.chip.active{ background: var(--dawn); border-color: var(--dawn); color:#14261b; font-weight:600; }
+      .map-head {
+        margin-bottom: 18px;
+      }
+      .map-head h2 {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.9rem;
+      }
+      .map-head .sub {
+        color: var(--text-dim);
+        font-size: 0.88rem;
+        font-family: "JetBrains Mono", monospace;
+        margin-top: 4px;
+      }
 
-.results-count{ font-family:'JetBrains Mono', monospace; font-size:.72rem; color:var(--text-dim); margin-bottom:14px; }
-.results-count b{ color: var(--dawn); }
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .chip {
+        font-family: "Inter";
+        font-size: 0.82rem;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--line-strong);
+        background: var(--panel);
+        color: var(--text-dim);
+        cursor: pointer;
+        user-select: none;
+      }
+      .chip:hover {
+        border-color: var(--dawn);
+        color: var(--text);
+      }
+      .chip.active {
+        background: var(--dawn);
+        border-color: var(--dawn);
+        color: #14261b;
+        font-weight: 600;
+      }
 
-.map-layout{ display:grid; grid-template-columns: 1.5fr 1fr; gap:20px; align-items:start; }
-@media (max-width: 860px){ .map-layout{ grid-template-columns: 1fr; } }
+      .results-count {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--text-dim);
+        margin-bottom: 14px;
+      }
+      .results-count b {
+        color: var(--dawn);
+      }
 
-#map{
-  height: 480px; width:100%; border-radius:10px; overflow:hidden;
-  border:1px solid var(--line-strong);
-}
-.leaflet-popup-content-wrapper{ background: var(--panel-light); color:var(--text); border-radius:8px; }
-.leaflet-popup-tip{ background: var(--panel-light); }
-.leaflet-popup-content{ font-family:'Inter'; font-size:.85rem; margin:12px 14px; }
-.leaflet-popup-content b{ font-family:'Fraunces', serif; font-size:1rem; }
-.fish-marker{
-  width:26px; height:26px; border-radius:50%; background: var(--dawn); border:2px solid #14261b;
-  display:flex; align-items:center; justify-content:center; font-size:12px;
-}
+      .map-layout {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      @media (max-width: 860px) {
+        .map-layout {
+          grid-template-columns: 1fr;
+        }
+      }
 
-.spot-panel{
-  display:flex; flex-direction:column; gap:10px;
-  max-height:480px; overflow-y:auto; padding-right:4px;
-}
-.spot-card{
-  background: var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px;
-  cursor:pointer;
-}
-.spot-card:hover, .spot-card.active{ border-color: var(--dawn); background: var(--panel-light); }
-.spot-card .s-name{ font-family:'Fraunces', serif; font-weight:700; font-size:1.02rem; margin-bottom:4px; }
-.spot-card .s-desc{ font-size:.83rem; color:var(--text-dim); line-height:1.5; margin-bottom:10px; }
-.fish-tags{ display:flex; flex-wrap:wrap; gap:6px; }
-.fish-tag{
-  font-family:'JetBrains Mono', monospace; font-size:.66rem; padding:3px 9px; border-radius:6px;
-  background: rgba(157,181,145,.18); color:#b9cbb0; border:1px solid rgba(157,181,145,.35);
-}
-.fish-tag.dimmed{ opacity:.25; }
-.spot-card .coords{ font-family:'JetBrains Mono', monospace; font-size:.64rem; color:var(--text-dim); margin-top:8px; opacity:.7; }
-.empty-state{ color:var(--text-dim); font-size:.85rem; padding:30px 10px; text-align:center; border:1px dashed var(--line-strong); border-radius:10px; }
+      #map {
+        height: 480px;
+        width: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid var(--line-strong);
+      }
+      .leaflet-popup-content-wrapper {
+        background: var(--panel-light);
+        color: var(--text);
+        border-radius: 8px;
+      }
+      .leaflet-popup-tip {
+        background: var(--panel-light);
+      }
+      .leaflet-popup-content {
+        font-family: "Inter";
+        font-size: 0.85rem;
+        margin: 12px 14px;
+      }
+      .leaflet-popup-content b {
+        font-family: "Fraunces", serif;
+        font-size: 1rem;
+      }
+      .fish-marker {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--dawn);
+        border: 2px solid #14261b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
 
-::-webkit-scrollbar{ width:8px; }
-::-webkit-scrollbar-track{ background:transparent; }
-::-webkit-scrollbar-thumb{ background: var(--line-strong); border-radius:10px; }
+      .spot-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 480px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+      .spot-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 16px 18px;
+        cursor: pointer;
+      }
+      .spot-card:hover,
+      .spot-card.active {
+        border-color: var(--dawn);
+        background: var(--panel-light);
+      }
+      .spot-card .s-name {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.02rem;
+        margin-bottom: 4px;
+      }
+      .spot-card .s-desc {
+        font-size: 0.83rem;
+        color: var(--text-dim);
+        line-height: 1.5;
+        margin-bottom: 10px;
+      }
+      .fish-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .fish-tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: rgba(157, 181, 145, 0.18);
+        color: #b9cbb0;
+        border: 1px solid rgba(157, 181, 145, 0.35);
+      }
+      .fish-tag.dimmed {
+        opacity: 0.25;
+      }
+      .spot-card .coords {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.64rem;
+        color: var(--text-dim);
+        opacity: 0.7;
+      }
+      .card-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 8px;
+      }
+      .directions-btn {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        color: var(--dawn);
+        text-decoration: none;
+        border: 1px solid rgba(232, 220, 192, 0.3);
+        border-radius: 6px;
+        padding: 4px 9px;
+        white-space: nowrap;
+      }
+      .directions-btn:hover {
+        background: rgba(232, 220, 192, 0.12);
+      }
+      .popup-directions {
+        display: inline-block;
+        margin-top: 8px;
+        color: var(--dawn);
+        font-size: 0.8rem;
+        text-decoration: none;
+        border-bottom: 1px dashed rgba(232, 220, 192, 0.5);
+      }
+      .popup-directions:hover {
+        border-bottom-style: solid;
+      }
+      .empty-state {
+        color: var(--text-dim);
+        font-size: 0.85rem;
+        padding: 30px 10px;
+        text-align: center;
+        border: 1px dashed var(--line-strong);
+        border-radius: 10px;
+      }
 
-#chatToggle{
-  position:fixed; bottom:26px; right:26px; z-index:50;
-  width:54px; height:54px; border-radius:50%;
-  background: var(--dawn); color:#14261b; border:none; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-}
-#chatToggle svg{ width:24px; height:24px; }
+      footer {
+        margin: 6px clamp(20px, 5vw, 64px) 0;
+        padding: 18px 0 28px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+      }
 
-#chatWindow{
-  position:fixed; bottom:92px; right:26px; z-index:50;
-  width: min(360px, 88vw); height: min(500px, 70vh);
-  background: var(--panel); border:1px solid var(--line-strong); border-radius:12px;
-  display:flex; flex-direction:column; overflow:hidden;
-  opacity:0; pointer-events:none; visibility:hidden;
-  transform-origin: bottom right;
-}
-#chatWindow.open{ pointer-events:auto; visibility:visible; }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--line-strong);
+        border-radius: 10px;
+      }
 
-.chat-head{
-  padding:14px 16px; border-bottom:1px solid var(--line);
-  display:flex; align-items:center; gap:10px; background: var(--panel-light);
-}
-.chat-head .dot{ width:8px; height:8px; border-radius:50%; background:var(--moss); }
-.chat-head .t{ font-family:'Fraunces', serif; font-weight:700; font-size:.92rem; }
-.chat-head .st{ font-size:.66rem; color:var(--text-dim); font-family:'JetBrains Mono', monospace; margin-left:auto; }
+      #chatToggle {
+        position: fixed;
+        bottom: 26px;
+        right: 26px;
+        z-index: 50;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: var(--dawn);
+        color: #14261b;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #chatToggle svg {
+        width: 24px;
+        height: 24px;
+      }
 
-.chat-body{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
-.msg{ max-width:85%; font-size:.85rem; line-height:1.5; padding:10px 13px; border-radius:10px; }
-.msg.bot{ align-self:flex-start; background: var(--panel-light); border:1px solid var(--line); }
-.msg.user{ align-self:flex-end; background: var(--dawn); color:#14261b; font-weight:500; }
-.msg.typing{ display:flex; gap:4px; align-items:center; padding:12px 15px; }
-.msg.typing span{ width:6px; height:6px; border-radius:50%; background: var(--text-dim); display:inline-block; }
+      #chatWindow {
+        position: fixed;
+        bottom: 92px;
+        right: 26px;
+        z-index: 50;
+        width: min(360px, 88vw);
+        height: min(500px, 70vh);
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
+        transform-origin: bottom right;
+      }
+      #chatWindow.open {
+        pointer-events: auto;
+        visibility: visible;
+      }
 
-.chat-input{ display:flex; gap:8px; padding:12px; border-top:1px solid var(--line); }
-.chat-input input{
-  flex:1; background: var(--bg); border:1px solid var(--line-strong); color:var(--text);
-  padding:10px 13px; border-radius:8px; font-family:'Inter'; font-size:.85rem; outline:none;
-}
-.chat-input input:focus{ border-color: var(--dawn); }
-.chat-input button{
-  width:38px; height:38px; border-radius:8px; border:none; background: var(--dawn); color:#14261b;
-  cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-.chat-input button:disabled{ opacity:.5; cursor:not-allowed; }
-.chat-input button svg{ width:16px; height:16px; }
+      .chat-head {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--panel-light);
+      }
+      .chat-head .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--moss);
+      }
+      .chat-head .t {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 0.92rem;
+      }
+      .chat-head .st {
+        font-size: 0.66rem;
+        color: var(--text-dim);
+        font-family: "JetBrains Mono", monospace;
+        margin-left: auto;
+      }
 
-@media (prefers-reduced-motion: reduce){
-  *{ animation:none !important; }
-}
-</style>
-</head>
-<body>
+      .chat-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .msg {
+        max-width: 85%;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        padding: 10px 13px;
+        border-radius: 10px;
+      }
+      .msg.bot {
+        align-self: flex-start;
+        background: var(--panel-light);
+        border: 1px solid var(--line);
+      }
+      .msg.user {
+        align-self: flex-end;
+        background: var(--dawn);
+        color: #14261b;
+        font-weight: 500;
+      }
+      .msg.typing {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        padding: 12px 15px;
+      }
+      .msg.typing span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--text-dim);
+        display: inline-block;
+      }
 
-<header>
-  <div class="brand">
-    <svg viewBox="0 0 40 40" fill="none">
-      <path d="M4 20c6-9 12-9 18 0-6 9-12 9-18 0z" stroke="#e8dcc0" stroke-width="1.6"/>
-      <circle cx="10" cy="20" r="1.6" fill="#e8dcc0"/>
-      <path d="M22 20c5 0 10-2.5 14-6-1 5-1 9 0 12-4-3.5-9-6-14-6z" stroke="#9db591" stroke-width="1.3" opacity=".7"/>
-    </svg>
-    <div class="brand-text">
-      <span class="name">ფერები და ქალაქები</span>
-      <span class="tag">თევზაობის სუპორტი</span>
-    </div>
-  </div>
-  <button class="back-btn" id="backBtn">← ქალაქების არჩევა</button>
-</header>
+      .chat-input {
+        display: flex;
+        gap: 8px;
+        padding: 12px;
+        border-top: 1px solid var(--line);
+      }
+      .chat-input input {
+        flex: 1;
+        background: var(--bg);
+        border: 1px solid var(--line-strong);
+        color: var(--text);
+        padding: 10px 13px;
+        border-radius: 8px;
+        font-family: "Inter";
+        font-size: 0.85rem;
+        outline: none;
+      }
+      .chat-input input:focus {
+        border-color: var(--dawn);
+      }
+      .chat-input button {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        border: none;
+        background: var(--dawn);
+        color: #14261b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .chat-input button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .chat-input button svg {
+        width: 16px;
+        height: 16px;
+      }
 
-<main>
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <svg viewBox="0 0 40 40" fill="none">
+          <path
+            d="M4 20c6-9 12-9 18 0-6 9-12 9-18 0z"
+            stroke="#e8dcc0"
+            stroke-width="1.6"
+          />
+          <circle cx="10" cy="20" r="1.6" fill="#e8dcc0" />
+          <path
+            d="M22 20c5 0 10-2.5 14-6-1 5-1 9 0 12-4-3.5-9-6-14-6z"
+            stroke="#9db591"
+            stroke-width="1.3"
+            opacity=".7"
+          />
+        </svg>
+        <div class="brand-text">
+          <span class="name">სითევზე</span>
+          <span class="tag">თევზაობის სუპორტი</span>
+        </div>
+      </div>
+      <button class="back-btn" id="backBtn">← ქალაქების არჩევა</button>
+    </header>
 
-  <section id="selectView">
-    <div class="hero-copy">
-      <div class="eyebrow">საქართველო · წყლის რუკა</div>
-      <h1>აირჩიე ქალაქი, იპოვე <em>შენი</em> ადგილი</h1>
-      <p>თითოეული ფორმა ქალაქის ნამდვილი კონტურია. დააჭირე მას და ნახავ სათევზაო ადგილებს რუკაზე, თევზის სახეობის მიხედვით გაფილტრულს.</p>
-    </div>
-    <div class="pond">
-      <div class="ripple-field" id="rippleField"></div>
-    </div>
-  </section>
+    <main>
+      <section id="selectView">
+        <div class="hero-copy">
+          <div class="eyebrow">საქართველო · წყლის რუკა</div>
+          <h1>აირჩიე ქალაქი, იპოვე <em>შენი</em> ადგილი</h1>
+          <p>
+            რუკაზე ანათებს ის ქალაქები, რომლებზეც სათევზაო ინფორმაცია გვაქვს —
+            დააჭირე მას და ნახავ ადგილებს, თევზის სახეობის მიხედვით გაფილტრულს.
+            დანარჩენი ქალაქები მუქად ჩანს — მალე დაემატება.
+          </p>
+          <div class="hero-stats">
+            <div class="stat"><b id="stCities">—</b><span>ქალაქი</span></div>
+            <div class="stat">
+              <b id="stSpots">—</b><span>სათევზაო ადგილი</span>
+            </div>
+            <div class="stat">
+              <b id="stFish">—</b><span>თევზის სახეობა</span>
+            </div>
+          </div>
+        </div>
+        <p class="pond-hint">
+          დააჭირე ანათებულ ქალაქზე — თითოეული გაიხსნება <b>საკუთარ რუკაზე</b>
+        </p>
+        <div class="pond">
+          <div class="georgia-map" id="georgiaMap"></div>
+        </div>
+      </section>
 
-  <section id="mapView">
-    <div class="city-switcher" id="citySwitcher"></div>
-    <div class="map-head">
-      <h2 id="cityTitle">—</h2>
-      <div class="sub" id="citySub"></div>
-    </div>
-    <div class="filters" id="fishFilters"></div>
-    <div class="results-count" id="resultsCount"></div>
-    <div class="map-layout">
-      <div id="map"></div>
-      <div class="spot-panel" id="spotPanel"></div>
-    </div>
-  </section>
+      <section id="mapView">
+        <div class="city-switcher" id="citySwitcher"></div>
+        <div class="map-head">
+          <h2 id="cityTitle">—</h2>
+          <div class="sub" id="citySub"></div>
+        </div>
+        <div class="filters" id="fishFilters"></div>
+        <div class="results-count" id="resultsCount"></div>
+        <div class="map-layout">
+          <div id="map"></div>
+          <div class="spot-panel" id="spotPanel"></div>
+        </div>
+      </section>
+    </main>
 
-</main>
+    <footer>
+      <span>სითევზე</span>
+      <span>ქალაქის ფორმები · სათევზაო ადგილები · ფილტრები</span>
+    </footer>
 
-<button id="chatToggle" aria-label="ჩატბოტი">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-</button>
-
-<div id="chatWindow">
-  <div class="chat-head">
-    <div class="dot"></div>
-    <div class="t">გუმბერი — შენი მეთევზე</div>
-    <div class="st">AI</div>
-  </div>
-  <div class="chat-body" id="chatBody">
-    <div class="msg bot">გამარჯობა! მე ვარ გუმბერი — მკითხე რაიმე სატყუარაზე, სეზონზე, ამინდზე ან იმაზე, რომელი თევზი სად ბინადრობს საქართველოში.</div>
-  </div>
-  <div class="chat-input">
-    <input type="text" id="chatInput" placeholder="დაწერე შეკითხვა...">
-    <button id="chatSend">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    <button id="chatToggle" aria-label="ჩატბოტი">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+        />
+      </svg>
     </button>
-  </div>
-</div>
 
-<script>
-const cities = [
-  {
-    id: 'tbilisi', name: 'თბილისი', lat: 41.7151, lng: 44.8271, zoom: 11,
-    spots: [
-      { name: 'თბილისის ზღვა', lat: 41.8256, lng: 44.7622, fish: ['კობრი','სუთხო','ქაშაყი'], desc: 'დიდი წყალსაცავი დედაქალაქის ჩრდილოეთით — მშვიდი ნაპირები და ღრმა ნაწილები.' },
-      { name: 'მტკვარი, ავლაბრის მონაკვეთი', lat: 41.6934, lng: 44.8236, fish: ['ორაგული','ლოქო','მარინკა'], desc: 'სწრაფი დინება ცენტრში — კარგია სპინინგით სათევზაოდ.' },
-      { name: 'ლისის ტბა', lat: 41.7486, lng: 44.7203, fish: ['კობრი','კარასინი'], desc: 'მშვიდი ტბა ქალაქის პირას, ოჯახური თევზაობისთვის მოსახერხებელი.' },
-    ]
-  },
-  {
-    id: 'batumi', name: 'ბათუმი', lat: 41.6168, lng: 41.6367, zoom: 11,
-    spots: [
-      { name: 'ბათუმის სანაპირო', lat: 41.6300, lng: 41.6250, fish: ['სტავრიდა','ლუფარი','ქაფშია'], desc: 'შავი ზღვის სანაპირო — საღამოს საათებში ყველაზე აქტიურია ბადობა.' },
-      { name: 'ჭოროხის შესართავი', lat: 41.5766, lng: 41.5561, fish: ['ორაგული','კალმახი'], desc: 'მთის მდინარის შესართავი ზღვასთან — სუფთა, ცივი წყალი.' },
-      { name: 'მარადიდის ტბა', lat: 41.5133, lng: 41.7189, fish: ['კობრი','სუთხო'], desc: 'დაცული ჭარბტენიანი ტერიტორია სამხრეთით, ჩუმი და ცოტა ცნობილი ადგილი.' },
-    ]
-  },
-  {
-    id: 'kutaisi', name: 'ქუთაისი', lat: 42.2679, lng: 42.7180, zoom: 11,
-    spots: [
-      { name: 'რიონის ხეობა', lat: 42.2679, lng: 42.7180, fish: ['მარინკა','კალმახი'], desc: 'იმერეთის მთავარი მდინარე — ქვიან კალაპოტში კარგი დინებაა.' },
-      { name: 'წყალწითელას კანიონი', lat: 42.3350, lng: 42.6100, fish: ['კალმახი'], desc: 'მთის ცივწყლიანი ხევი, კალმახის საყვარელი ჰაბიტატი.' },
-    ]
-  },
-  {
-    id: 'poti', name: 'ფოთი', lat: 42.1462, lng: 41.6714, zoom: 11,
-    spots: [
-      { name: 'ფალიასტომის ტბა', lat: 42.0989, lng: 41.6486, fish: ['კობრი','სუთხო','წვერა'], desc: 'დიდი სანაპირო ტბა, კოლხეთის ეროვნული პარკის ნაწილი.' },
-      { name: 'შავი ზღვის სანაპირო, პორტთან', lat: 42.1462, lng: 41.6714, fish: ['ლუფარი','სტავრიდა'], desc: 'პორტის მიმდებარე სანაპირო, ხშირად ხალხმრავალი მაგრამ პროდუქტიული.' },
-    ]
-  },
-  {
-    id: 'telavi', name: 'თელავი', lat: 41.9184, lng: 45.4739, zoom: 10,
-    spots: [
-      { name: 'ალაზნის ველი', lat: 41.9184, lng: 45.6000, fish: ['მარინკა','კობრი'], desc: 'ღვინის რეგიონის მდინარე, თბილი და ნელი დინებით.' },
-      { name: 'ივრის წყალსაცავი', lat: 41.6333, lng: 45.9500, fish: ['კობრი','ფაჰარი','სუთხო'], desc: 'დიდი ხელოვნური ტბა კახეთის სამხრეთით.' },
-    ]
-  },
-  {
-    id: 'zugdidi', name: 'ზუგდიდი', lat: 42.5088, lng: 41.8709, zoom: 10,
-    spots: [
-      { name: 'ენგურის ხეობა', lat: 42.7167, lng: 41.8667, fish: ['კალმახი','მარინკა'], desc: 'სვანეთიდან ჩამომდინარე ცივი მთის მდინარე.' },
-      { name: 'ხობის ჭალები', lat: 42.3167, lng: 41.9000, fish: ['კობრი','სუთხო'], desc: 'ჭარბტენიანი დაბლობი, მშვიდი ნაპირისპირა თევზაობა.' },
-    ]
-  },
-];
+    <div id="chatWindow">
+      <div class="chat-head">
+        <div class="dot"></div>
+        <div class="t">გუმბერი — შენი მეთევზე</div>
+        <div class="st">AI</div>
+      </div>
+      <div class="chat-body" id="chatBody">
+        <div class="msg bot">
+          გამარჯობა! მე ვარ გუმბერი — მკითხე რაიმე სატყუარაზე, სეზონზე, ამინდზე
+          ან იმაზე, რომელი თევზი სად ბინადრობს საქართველოში.
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="დაწერე შეკითხვა..." />
+        <button id="chatSend">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+        </button>
+      </div>
+    </div>
 
-const nodePositions = [
-  { x: '50%', y: '48%' }, { x: '50%', y: '10%' }, { x: '86%', y: '30%' },
-  { x: '80%', y: '76%' }, { x: '18%', y: '78%' }, { x: '14%', y: '28%' },
-];
-const nodeSizes = [140, 116, 108, 112, 104, 108];
+    <script>
+      const cities = [
+        {
+          id: "tbilisi",
+          name: "თბილისი",
+          lat: 41.7151,
+          lng: 44.8271,
+          zoom: 11,
+          spots: [
+            {
+              name: "თბილისის ზღვა",
+              lat: 41.8256,
+              lng: 44.7622,
+              fish: ["კობრი", "სუთხო", "ქაშაყი"],
+              desc: "დიდი წყალსაცავი დედაქალაქის ჩრდილოეთით — მშვიდი ნაპირები და ღრმა ნაწილები.",
+            },
+            {
+              name: "მტკვარი, ავლაბრის მონაკვეთი",
+              lat: 41.6934,
+              lng: 44.8236,
+              fish: ["ორაგული", "ლოქო", "მარინკა"],
+              desc: "სწრაფი დინება ცენტრში — კარგია სპინინგით სათევზაოდ.",
+            },
+            {
+              name: "ლისის ტბა",
+              lat: 41.7486,
+              lng: 44.7203,
+              fish: ["კობრი", "კარასინი"],
+              desc: "მშვიდი ტბა ქალაქის პირას, ოჯახური თევზაობისთვის მოსახერხებელი.",
+            },
+            {
+              name: "მტკვარი, გლდანის მონაკვეთი",
+              lat: 41.78,
+              lng: 44.78,
+              fish: ["კალმახი", "კობრი", "კარასინი"],
+              desc: "მტკვრის ჩრდილოეთ მონაკვეთი — ნელი დინება, ღრმა წყალი.",
+            },
+            {
+              name: "მტკვარი, ვაკის მონაკვეთი",
+              lat: 41.715,
+              lng: 44.78,
+              fish: ["კალმახი", "კობრი", "კარასინი"],
+              desc: "მტკვრის ცენტრალური მონაკვეთი — ნელი დინება, ღრმა წყალი.",
+            },
+            {
+              name: "მტკვარი, სამგორის მონაკვეთი",
+              lat: 41.7,
+              lng: 44.85,
+              fish: ["კალმახი", "კობრი", "კარასინი"],
+              desc: "მტკვრის სამხრეთ მონაკვეთი — ნელი დინება, ღრმა წყალი.",
+            },
+            {
+              name: "მტკვარი, მცხეთის მიმართულება",
+              lat: 41.8,
+              lng: 44.75,
+              fish: ["კალმახი", "კობრი", "კარასინი"],
+              desc: "მტკვრის ჩრდილოეთ მონაკვეთი მცხეთის მიმართულებით — ნელი დინება, ღრმა წყალი.",
+            },
+            {
+              name: "სიონის წყალსაცავი",
+              lat: 41.9851,
+              lng: 44.951,
+              fish: ["კობრი", "წვერა", "ხრამულა"],
+              desc: "ხელოვნური წყალსაცავი მდინარე იორზე — მშვიდი, ღრმა წყალი, ქალაქის ჩრდილო-აღმოსავლეთით.",
+            },
+            {
+              name: "კუს ტბა",
+              lat: 41.73,
+              lng: 44.8,
+              fish: ["კობრი", "წითელთვალა", "გამბუზი"],
+              desc: "მცირე ტბა, მშვიდი წყლით, ქალაქის სიახლოვეს.",
+            },
+            {
+              name: "კუმისის ტბა",
+              lat: 41.74,
+              lng: 44.81,
+              fish: ["კობრი", "ლოქო", "კარასინი", "კაპარჭინა"],
+              desc: "წყალსაცავი/ტბა, მშვიდი წყლით, ქალაქის პირას.",
+            },
+            {
+              name: "იორი-სიონის ქვედა მონაკვეთი",
+              lat: 41.7,
+              lng: 44.85,
+              fish: ["წვერა", "ხრამულა", "კალმახი"],
+              desc: "მდინარე იორი, სიონის წყალსაცავიდან ქვემოთ, ნელი დინებით, მდინარის პირას.",
+            },
+            {
+              name: "იორი-გარდაბნის მიმართულება",
+              lat: 41.65,
+              lng: 44.85,
+              fish: ["წვერა", "ლოქო", "კობრი"],
+              desc: "მდინარე იორი, გარდაბნის მიმართულებით, ნელი დინებით, მდინარის პირას.",
+            },
+            {
+              name: "ქსანი-მიხრანის მონაკვეთი",
+              lat: 41.6,
+              lng: 44.9,
+              fish: ["წვერა", "ხრამულა", "ტობი"],
+              desc: "მდინარე ქსანი, მიხრანის მონაკვეთი, ნელი დინებით, მდინარის პირას.",
+            },
+          ],
+        },
+        {
+          id: "batumi",
+          name: "ბათუმი",
+          lat: 41.6168,
+          lng: 41.6367,
+          zoom: 11,
+          spots: [
+            {
+              name: "ბათუმის სანაპირო",
+              lat: 41.63,
+              lng: 41.625,
+              fish: ["სტავრიდა", "ლუფარი", "ქაფშია"],
+              desc: "შავი ზღვის სანაპირო — საღამოს საათებში ყველაზე აქტიურია ბადობა.",
+            },
+            {
+              name: "ჭოროხის შესართავი",
+              lat: 41.5766,
+              lng: 41.5561,
+              fish: ["ორაგული", "კალმახი"],
+              desc: "მთის მდინარის შესართავი ზღვასთან — სუფთა, ცივი წყალი.",
+            },
+            {
+              name: "მარადიდის ტბა",
+              lat: 41.5133,
+              lng: 41.7189,
+              fish: ["კობრი", "სუთხო"],
+              desc: "დაცული ჭარბტენიანი ტერიტორია სამხრეთით, ჩუმი და ცოტა ცნობილი ადგილი.",
+            },
+          ],
+        },
+        {
+          id: "kutaisi",
+          name: "ქუთაისი",
+          lat: 42.2679,
+          lng: 42.718,
+          zoom: 11,
+          spots: [
+            {
+              name: "რიონის ხეობა",
+              lat: 42.2679,
+              lng: 42.718,
+              fish: ["მარინკა", "კალმახი"],
+              desc: "იმერეთის მთავარი მდინარე — ქვიან კალაპოტში კარგი დინებაა.",
+            },
+            {
+              name: "წყალწითელას კანიონი",
+              lat: 42.335,
+              lng: 42.61,
+              fish: ["კალმახი"],
+              desc: "მთის ცივწყლიანი ხევი, კალმახის საყვარელი ჰაბიტატი.",
+            },
+          ],
+        },
+        {
+          id: "poti",
+          name: "ფოთი",
+          lat: 42.1462,
+          lng: 41.6714,
+          zoom: 11,
+          spots: [
+            {
+              name: "ფალიასტომის ტბა",
+              lat: 42.0989,
+              lng: 41.6486,
+              fish: ["კობრი", "სუთხო", "წვერა"],
+              desc: "დიდი სანაპირო ტბა, კოლხეთის ეროვნული პარკის ნაწილი.",
+            },
+            {
+              name: "შავი ზღვის სანაპირო, პორტთან",
+              lat: 42.1462,
+              lng: 41.6714,
+              fish: ["ლუფარი", "სტავრიდა"],
+              desc: "პორტის მიმდებარე სანაპირო, ხშირად ხალხმრავალი მაგრამ პროდუქტიული.",
+            },
+          ],
+        },
+        {
+          id: "telavi",
+          name: "თელავი",
+          lat: 41.9184,
+          lng: 45.4739,
+          zoom: 10,
+          spots: [
+            {
+              name: "ალაზნის ველი",
+              lat: 41.9184,
+              lng: 45.6,
+              fish: ["მარინკა", "კობრი"],
+              desc: "ღვინის რეგიონის მდინარე, თბილი და ნელი დინებით.",
+            },
+            {
+              name: "ივრის წყალსაცავი",
+              lat: 41.6333,
+              lng: 45.95,
+              fish: ["კობრი", "ფაჰარი", "სუთხო"],
+              desc: "დიდი ხელოვნური ტბა კახეთის სამხრეთით.",
+            },
+          ],
+        },
+        {
+          id: "zugdidi",
+          name: "ზუგდიდი",
+          lat: 42.5088,
+          lng: 41.8709,
+          zoom: 10,
+          spots: [
+            {
+              name: "ენგურის ხეობა",
+              lat: 42.7167,
+              lng: 41.8667,
+              fish: ["კალმახი", "მარინკა"],
+              desc: "სვანეთიდან ჩამომდინარე ცივი მთის მდინარე.",
+            },
+            {
+              name: "ხობის ჭალები",
+              lat: 42.3167,
+              lng: 41.9,
+              fish: ["კობრი", "სუთხო"],
+              desc: "ჭარბტენიანი დაბლობი, მშვიდი ნაპირისპირა თევზაობა.",
+            },
+          ],
+        },
+      ];
 
-const rippleField = document.getElementById('rippleField');
-const cityNodes = [];
+      document.getElementById("stCities").textContent = cities.length;
+      document.getElementById("stSpots").textContent = cities.reduce(
+        (n, c) => n + c.spots.length,
+        0,
+      );
+      document.getElementById("stFish").textContent = new Set(
+        cities.flatMap((c) => c.spots.flatMap((s) => s.fish)),
+      ).size;
 
-cities.forEach((city, i) => {
-  const node = document.createElement('div');
-  node.className = 'city-node';
-  node.dataset.city = city.id;
-  const size = nodeSizes[i] || 108;
-  node.style.width = size + 'px';
-  node.style.height = size + 'px';
-  node.style.left = nodePositions[i].x;
-  node.style.top = nodePositions[i].y;
-  node.innerHTML =
-    '<div class="shape-wrap"><div class="placeholder-shape"></div></div>' +
-    '<div class="node-label"><span class="n-name">' + city.name + '</span>' +
-    '<span class="n-count">' + city.spots.length + ' ადგილი</span></div>';
-  rippleField.appendChild(node);
-  cityNodes.push(node);
+      // Other Georgian cities shown on the map for geographic context.
+      // These have no fishing-spot data yet, so they render as dim, non-interactive dots.
+      const otherCities = [
+        { name: "გორი", lat: 41.9847, lng: 44.1122 },
+        { name: "რუსთავი", lat: 41.5495, lng: 45.0092 },
+        { name: "ახალციხე", lat: 41.6392, lng: 42.9814 },
+        { name: "ბორჯომი", lat: 41.842, lng: 43.3919 },
+        { name: "ოზურგეთი", lat: 41.9186, lng: 41.7942 },
+        { name: "სამტრედია", lat: 42.1567, lng: 42.3436 },
+        { name: "სენაკი", lat: 42.2686, lng: 42.0658 },
+        { name: "ხაშური", lat: 41.995, lng: 43.5967 },
+        { name: "მცხეთა", lat: 41.8453, lng: 44.7211 },
+        { name: "სიღნაღი", lat: 41.6222, lng: 45.925 },
+        { name: "გურჯაანი", lat: 41.7439, lng: 45.7981 },
+        { name: "ყვარელი", lat: 41.6494, lng: 46.0353 },
+        { name: "ახმეტა", lat: 42.0428, lng: 45.2039 },
+        { name: "დუშეთი", lat: 42.0864, lng: 44.7047 },
+        { name: "ონი", lat: 42.5825, lng: 43.4394 },
+        { name: "ამბროლაური", lat: 42.5231, lng: 43.1533 },
+        { name: "მესტია", lat: 43.0431, lng: 42.7286 },
+        { name: "წყალტუბო", lat: 42.3383, lng: 42.6053 },
+        { name: "ზესტაფონი", lat: 42.1122, lng: 43.0464 },
+        { name: "ხონი", lat: 42.3183, lng: 42.4114 },
+        { name: "ტყიბული", lat: 42.345, lng: 42.9797 },
+        { name: "საჩხერე", lat: 42.3492, lng: 43.4142 },
+        { name: "ბოლნისი", lat: 41.4494, lng: 44.5406 },
+        { name: "დმანისი", lat: 41.3325, lng: 44.2036 },
+        { name: "მარნეული", lat: 41.4756, lng: 44.8083 },
+        { name: "გარდაბანი", lat: 41.4633, lng: 45.0961 },
+        { name: "კასპი", lat: 41.9264, lng: 44.4211 },
+        { name: "ქარელი", lat: 41.9678, lng: 44.0367 },
+        { name: "ახალქალაქი", lat: 41.4064, lng: 43.4864 },
+        { name: "ნინოწმინდა", lat: 41.4636, lng: 43.5975 },
+      ];
 
-  node.addEventListener('mouseenter', () => {
-    node.classList.add('hovered');
-    gsap.to(node, { scale: 1.07, duration: .3, ease: 'power2.out' });
-  });
-  node.addEventListener('mouseleave', () => {
-    node.classList.remove('hovered');
-    gsap.to(node, { scale: 1, duration: .3, ease: 'power2.out' });
-  });
-  node.addEventListener('click', () => {
-    gsap.timeline()
-      .to(node, { scale: .93, duration: .1 })
-      .to(node, { scale: 1.07, duration: .2, ease: 'back.out(2.5)' })
-      .call(() => selectCity(city.id));
-  });
-});
+      // Real (simplified) national boundary of Georgia, embedded directly so the
+      // map renders instantly with no network dependency.
+      const GEORGIA_RING = [
+        [41.554084, 41.535656],
+        [41.703171, 41.962943],
+        [41.45347, 42.645123],
+        [40.875469, 43.013628],
+        [40.321394, 43.128634],
+        [39.955009, 43.434998],
+        [40.076965, 43.553104],
+        [40.922185, 43.382159],
+        [42.394395, 43.220308],
+        [43.756017, 42.740828],
+        [43.9312, 42.554974],
+        [44.537623, 42.711993],
+        [45.470279, 42.502781],
+        [45.77641, 42.092444],
+        [46.404951, 41.860675],
+        [46.145432, 41.722802],
+        [46.637908, 41.181673],
+        [46.501637, 41.064445],
+        [45.962601, 41.123873],
+        [45.217426, 41.411452],
+        [44.97248, 41.248129],
+        [43.582746, 41.092143],
+        [42.619549, 41.583173],
+        [41.554084, 41.535656],
+      ];
 
-gsap.from(cityNodes, { opacity: 0, scale: .5, duration: .6, stagger: .07, ease: 'back.out(1.6)' });
+      // Builds an equirectangular, latitude-corrected projection from a ring of
+      // [lng,lat] points. The country outline, the glowing city shapes, and the
+      // dim other-city dots are all projected through this SAME object, so
+      // everything lines up geographically with everything else.
+      function computeProjection(ring) {
+        const lats = ring.map((p) => p[1]);
+        const lngs = ring.map((p) => p[0]);
+        const minLat = Math.min(...lats),
+          maxLat = Math.max(...lats);
+        const minLng = Math.min(...lngs),
+          maxLng = Math.max(...lngs);
+        const avgLat = (minLat + maxLat) / 2;
+        const xScale = Math.cos((avgLat * Math.PI) / 180);
+        const width = (maxLng - minLng) * xScale;
+        const height = maxLat - minLat;
+        const scale = Math.max(width, height) || 1;
+        return {
+          minLng,
+          minLat,
+          maxLat,
+          xScale,
+          scale,
+          boxW: +((width / scale) * 100).toFixed(2),
+          boxH: +((height / scale) * 100).toFixed(2),
+        };
+      }
 
-function ringPointsToPath(points, avgLat) {
-  const lats = points.map(p => p[1]);
-  const lngs = points.map(p => p[0]);
-  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-  const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-  const xScale = Math.cos(avgLat * Math.PI / 180);
-  const width = (maxLng - minLng) * xScale;
-  const height = maxLat - minLat;
-  const scale = Math.max(width, height) || 1;
-  const boxW = (width / scale * 100);
-  const boxH = (height / scale * 100);
-  const drawn = points.map(([lng, lat]) => {
-    const x = ((lng - minLng) * xScale / scale) * 100;
-    const y = (1 - (lat - minLat) / scale) * 100;
-    return x.toFixed(2) + ',' + y.toFixed(2);
-  });
-  return { d: 'M' + drawn.join('L') + 'Z', boxW: boxW.toFixed(2), boxH: boxH.toFixed(2) };
-}
+      function project(proj, lng, lat) {
+        return [
+          (((lng - proj.minLng) * proj.xScale) / proj.scale) * 100,
+          ((proj.maxLat - lat) / proj.scale) * 100,
+        ];
+      }
 
-function pickOuterRing(geojson) {
-  let rings = [];
-  if (geojson.type === 'Polygon') rings = [geojson.coordinates[0]];
-  else if (geojson.type === 'MultiPolygon') rings = geojson.coordinates.map(p => p[0]);
-  else return null;
+      function ringToPath(ring, proj) {
+        const pts = ring.map(([lng, lat]) => project(proj, lng, lat));
+        return (
+          "M" +
+          pts.map((p) => p[0].toFixed(2) + "," + p[1].toFixed(2)).join("L") +
+          "Z"
+        );
+      }
 
-  let chosen = null, largest = 0;
-  rings.forEach(ring => {
-    const lats = ring.map(p => p[1]), lngs = ring.map(p => p[0]);
-    const area = (Math.max(...lats) - Math.min(...lats)) * (Math.max(...lngs) - Math.min(...lngs));
-    if (area > largest) { largest = area; chosen = ring; }
-  });
-  return chosen && chosen.length > 3 ? chosen : null;
-}
+      function seededRandom(seed) {
+        let s = 0;
+        const str = String(seed);
+        for (let i = 0; i < str.length; i++)
+          s = (s * 31 + str.charCodeAt(i)) >>> 0;
+        return function () {
+          s = (s * 1664525 + 1013904223) >>> 0;
+          return s / 4294967296;
+        };
+      }
 
-async function getCityShape(cityName) {
-  const params = new URLSearchParams({
-    q: cityName + ', საქართველო',
-    format: 'json',
-    polygon_geojson: '1',
-    polygon_threshold: '0.004',
-    limit: '1'
-  });
-  const res = await fetch('https://nominatim.openstreetmap.org/search?' + params);
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data[0] && data[0].geojson ? data[0].geojson : null;
-}
+      // An organic, blob-shaped area (not a literal cadastral boundary) drawn
+      // around a city's real coordinates — reads as a lit-up patch of the city
+      // rather than a single point, with a deterministic shape per city.
+      function generateBlobRing(seed, cLng, cLat, radiusDeg, points) {
+        points = points || 12;
+        const rand = seededRandom(seed);
+        const ring = [];
+        for (let i = 0; i <= points; i++) {
+          const angle = (i / points) * Math.PI * 2;
+          const r = radiusDeg * (0.7 + rand() * 0.4);
+          ring.push([cLng + Math.cos(angle) * r, cLat + Math.sin(angle) * r]);
+        }
+        return ring;
+      }
 
-function drawShapeIntoNode(cityId, geojson) {
-  const ring = pickOuterRing(geojson);
-  if (!ring) return;
-  const avgLat = (Math.min(...ring.map(p => p[1])) + Math.max(...ring.map(p => p[1]))) / 2;
-  const shape = ringPointsToPath(ring, avgLat);
+      const svgNS = "http://www.w3.org/2000/svg";
+      function svgEl(tag, attrs) {
+        const el = document.createElementNS(svgNS, tag);
+        Object.entries(attrs || {}).forEach(([k, v]) =>
+          el.setAttribute(k, String(v)),
+        );
+        return el;
+      }
 
-  const node = document.querySelector('.city-node[data-city="' + cityId + '"]');
-  if (!node) return;
-  const wrap = node.querySelector('.shape-wrap');
-  wrap.innerHTML = '<svg class="city-shape" viewBox="0 0 ' + shape.boxW + ' ' + shape.boxH + '" preserveAspectRatio="xMidYMid meet"><path d="' + shape.d + '"/></svg>';
+      function buildOverviewMap() {
+        const holder = document.getElementById("georgiaMap");
+        if (!holder) return;
+        const proj = computeProjection(GEORGIA_RING);
 
-  const path = wrap.querySelector('path');
-  const length = path.getTotalLength();
-  gsap.set(path, { strokeDasharray: length, strokeDashoffset: length, fillOpacity: 0 });
-  gsap.timeline()
-    .to(path, { strokeDashoffset: 0, duration: 1, ease: 'power2.inOut' })
-    .to(path, { fillOpacity: 1, duration: .4, ease: 'power1.out' }, '-=.35');
-}
+        const svg = svgEl("svg", {
+          viewBox: "0 0 " + proj.boxW + " " + proj.boxH,
+          preserveAspectRatio: "xMidYMid meet",
+        });
+        svg.setAttribute("class", "country-shape");
 
-async function loadAllCityShapes() {
-  for (const city of cities) {
-    try {
-      const geojson = await getCityShape(city.name);
-      if (geojson) drawShapeIntoNode(city.id, geojson);
-    } catch (e) {}
-    await new Promise(resolve => setTimeout(resolve, 280));
-  }
-}
-loadAllCityShapes();
+        svg.appendChild(svgEl("path", { d: ringToPath(GEORGIA_RING, proj) }));
 
-const selectView = document.getElementById('selectView');
-const mapView = document.getElementById('mapView');
-const backBtn = document.getElementById('backBtn');
-let map = null;
-let markers = [];
-let activeFish = null;
-let currentCityId = null;
+        // dim, non-interactive dots for cities without fishing-spot data
+        otherCities.forEach((city) => {
+          const [x, y] = project(proj, city.lng, city.lat);
+          svg.appendChild(
+            svgEl("circle", {
+              cx: x.toFixed(2),
+              cy: y.toFixed(2),
+              r: 0.55,
+              class: "other-dot",
+            }),
+          );
+        });
 
-backBtn.addEventListener('click', () => {
-  gsap.timeline()
-    .to(mapView, { opacity: 0, y: 14, duration: .25, ease: 'power2.in' })
-    .set(mapView, { display: 'none' })
-    .set(selectView, { display: 'block' })
-    .fromTo(selectView, { opacity: 0 }, { opacity: 1, duration: .35 })
-    .call(() => {
-      mapView.classList.remove('show');
-      selectView.classList.remove('hidden');
-      backBtn.classList.remove('show');
-    });
-});
+        // glowing, clickable blob areas for cities with fishing-spot data
+        cities.forEach((city) => {
+          const [x, y] = project(proj, city.lng, city.lat);
+          const radiusDeg = (2.1 * proj.scale) / (proj.xScale * 100);
+          const blobRing = generateBlobRing(
+            city.id,
+            city.lng,
+            city.lat,
+            radiusDeg,
+          );
 
-function buildCitySwitcher(activeId) {
-  const holder = document.getElementById('citySwitcher');
-  holder.innerHTML = '';
-  cities.forEach(city => {
-    const chip = document.createElement('div');
-    chip.className = 'switch-chip' + (city.id === activeId ? ' active' : '');
-    chip.textContent = city.name;
-    chip.addEventListener('click', () => {
-      if (city.id !== currentCityId) selectCity(city.id, true);
-    });
-    holder.appendChild(chip);
-  });
-}
+          const g = svgEl("g", { class: "city-shape-node" });
+          g.setAttribute("data-city", city.id);
+          g.appendChild(svgEl("path", { d: ringToPath(blobRing, proj) }));
 
-function selectCity(id, isSwitch) {
-  const city = cities.find(c => c.id === id);
-  if (!city) return;
-  activeFish = null;
-  currentCityId = id;
-  buildCitySwitcher(id);
+          const label = svgEl("text", {
+            x: x.toFixed(2),
+            y: (y + 4.6).toFixed(2),
+            "text-anchor": "middle",
+            class: "shape-label",
+          });
+          label.textContent = city.name;
+          g.appendChild(label);
 
-  if (!isSwitch) {
-    selectView.classList.add('hidden');
-    mapView.classList.add('show');
-    backBtn.classList.add('show');
-    gsap.set(selectView, { display: 'none' });
-    gsap.set(mapView, { display: 'block', opacity: 0, y: 14 });
-    gsap.to(mapView, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' });
-  }
+          const count = svgEl("text", {
+            x: x.toFixed(2),
+            y: (y + 7.4).toFixed(2),
+            "text-anchor": "middle",
+            class: "shape-count",
+          });
+          count.textContent = city.spots.length + " ადგილი";
+          g.appendChild(count);
 
-  document.getElementById('cityTitle').textContent = city.name;
-  document.getElementById('citySub').textContent = city.spots.length + ' ცნობილი სათევზაო ადგილი';
+          g.addEventListener("click", () => selectCity(city.id));
+          svg.appendChild(g);
+        });
 
-  const fishOptions = [...new Set(city.spots.flatMap(s => s.fish))];
-  const filterHolder = document.getElementById('fishFilters');
-  filterHolder.innerHTML = '';
+        holder.innerHTML = "";
+        holder.appendChild(svg);
+      }
+      buildOverviewMap();
 
-  const allChip = document.createElement('div');
-  allChip.className = 'chip active';
-  allChip.textContent = 'ყველა თევზი';
-  allChip.addEventListener('click', () => {
-    activeFish = null;
-    renderSpots(city);
-    setActiveChip(allChip);
-  });
-  filterHolder.appendChild(allChip);
+      const selectView = document.getElementById("selectView");
+      const mapView = document.getElementById("mapView");
+      const backBtn = document.getElementById("backBtn");
+      let map = null;
+      let markers = [];
+      let activeFish = null;
+      let currentCityId = null;
 
-  fishOptions.forEach(fish => {
-    const chip = document.createElement('div');
-    chip.className = 'chip';
-    chip.textContent = fish;
-    chip.addEventListener('click', () => {
-      activeFish = fish;
-      renderSpots(city);
-      setActiveChip(chip);
-    });
-    filterHolder.appendChild(chip);
-  });
+      backBtn.addEventListener("click", () => {
+        gsap
+          .timeline()
+          .to(mapView, { opacity: 0, y: 14, duration: 0.25, ease: "power2.in" })
+          .set(mapView, { display: "none" })
+          .set(selectView, { display: "block" })
+          .fromTo(selectView, { opacity: 0 }, { opacity: 1, duration: 0.35 })
+          .call(() => {
+            mapView.classList.remove("show");
+            selectView.classList.remove("hidden");
+            backBtn.classList.remove("show");
+          });
+      });
 
-  function setActiveChip(target) {
-    [...filterHolder.children].forEach(c => c.classList.remove('active'));
-    target.classList.add('active');
-  }
+      function buildCitySwitcher(activeId) {
+        const holder = document.getElementById("citySwitcher");
+        holder.innerHTML = "";
+        cities.forEach((city) => {
+          const chip = document.createElement("div");
+          chip.className =
+            "switch-chip" + (city.id === activeId ? " active" : "");
+          chip.textContent = city.name;
+          chip.addEventListener("click", () => {
+            if (city.id !== currentCityId) selectCity(city.id, true);
+          });
+          holder.appendChild(chip);
+        });
+      }
 
-  if (!map) {
-    map = L.map('map').setView([city.lat, city.lng], city.zoom);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      maxZoom: 19
-    }).addTo(map);
-  } else {
-    map.flyTo([city.lat, city.lng], city.zoom, { duration: .8 });
-  }
-  setTimeout(() => map.invalidateSize(), 420);
+      function selectCity(id, isSwitch) {
+        const city = cities.find((c) => c.id === id);
+        if (!city) return;
+        activeFish = null;
+        currentCityId = id;
+        buildCitySwitcher(id);
 
-  renderSpots(city);
-}
+        if (!isSwitch) {
+          selectView.classList.add("hidden");
+          mapView.classList.add("show");
+          backBtn.classList.add("show");
+          gsap.set(selectView, { display: "none" });
+          gsap.set(mapView, { display: "block", opacity: 0, y: 14 });
+          gsap.to(mapView, {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            ease: "power2.out",
+          });
+        }
 
-function fishMarkerIcon() {
-  return L.divIcon({ className: '', html: '<div class="fish-marker">🎣</div>', iconSize: [26, 26], iconAnchor: [13, 13] });
-}
+        document.getElementById("cityTitle").textContent = city.name;
+        document.getElementById("citySub").textContent =
+          city.spots.length + " ცნობილი სათევზაო ადგილი";
 
-function renderSpots(city) {
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+        const fishOptions = [...new Set(city.spots.flatMap((s) => s.fish))];
+        const filterHolder = document.getElementById("fishFilters");
+        filterHolder.innerHTML = "";
 
-  const panel = document.getElementById('spotPanel');
-  panel.innerHTML = '';
+        const allChip = document.createElement("div");
+        allChip.className = "chip active";
+        allChip.textContent = "ყველა თევზი";
+        allChip.addEventListener("click", () => {
+          activeFish = null;
+          renderSpots(city);
+          setActiveChip(allChip);
+        });
+        filterHolder.appendChild(allChip);
 
-  const visible = city.spots.filter(s => !activeFish || s.fish.includes(activeFish));
-  document.getElementById('resultsCount').innerHTML =
-    '<b>' + visible.length + '</b> ადგილი ნაპოვნია' + (activeFish ? ' — "' + activeFish + '"' : '');
+        fishOptions.forEach((fish) => {
+          const chip = document.createElement("div");
+          chip.className = "chip";
+          chip.textContent = fish;
+          chip.addEventListener("click", () => {
+            activeFish = fish;
+            renderSpots(city);
+            setActiveChip(chip);
+          });
+          filterHolder.appendChild(chip);
+        });
 
-  visible.forEach(spot => {
-    const marker = L.marker([spot.lat, spot.lng], { icon: fishMarkerIcon() }).addTo(map);
-    marker.bindPopup('<b>' + spot.name + '</b><br>' + spot.desc + '<br><br>' + spot.fish.map(f => '#' + f).join(' '));
-    markers.push(marker);
+        function setActiveChip(target) {
+          [...filterHolder.children].forEach((c) =>
+            c.classList.remove("active"),
+          );
+          target.classList.add("active");
+        }
 
-    const markerEl = marker.getElement();
-    if (markerEl) gsap.from(markerEl, { scale: 0, y: -12, duration: .4, ease: 'back.out(2)', delay: .04 * markers.length });
+        if (!map) {
+          map = L.map("map").setView([city.lat, city.lng], city.zoom);
+          L.tileLayer(
+            "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+            {
+              attribution: "&copy; OpenStreetMap &copy; CARTO",
+              maxZoom: 19,
+            },
+          ).addTo(map);
+        } else {
+          map.flyTo([city.lat, city.lng], city.zoom, { duration: 0.8 });
+        }
+        setTimeout(() => map.invalidateSize(), 420);
 
-    const card = document.createElement('div');
-    card.className = 'spot-card';
-    card.innerHTML =
-      '<div class="s-name">' + spot.name + '</div>' +
-      '<div class="s-desc">' + spot.desc + '</div>' +
-      '<div class="fish-tags">' + spot.fish.map(f =>
-        '<span class="fish-tag ' + (activeFish && activeFish !== f ? 'dimmed' : '') + '">' + f + '</span>'
-      ).join('') + '</div>' +
-      '<div class="coords">' + spot.lat.toFixed(4) + ', ' + spot.lng.toFixed(4) + '</div>';
+        renderSpots(city);
+      }
 
-    card.addEventListener('click', () => {
-      map.flyTo([spot.lat, spot.lng], Math.max(city.zoom, 12), { duration: .7 });
-      marker.openPopup();
-      [...panel.children].forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-    });
-    panel.appendChild(card);
-  });
+      function fishMarkerIcon() {
+        return L.divIcon({
+          className: "",
+          html: '<div class="fish-marker">🎣</div>',
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
+        });
+      }
 
-  if (visible.length === 0) {
-    panel.innerHTML = '<div class="empty-state">ამ თევზისთვის ამ ქალაქში ადგილი ვერ მოიძებნა.<br>სცადე სხვა ფილტრი.</div>';
-  } else {
-    gsap.from(panel.children, { opacity: 0, y: 12, duration: .35, stagger: .05, ease: 'power2.out' });
-  }
-}
+      function renderSpots(city) {
+        markers.forEach((m) => map.removeLayer(m));
+        markers = [];
 
-const chatToggle = document.getElementById('chatToggle');
-const chatWindow = document.getElementById('chatWindow');
-const chatBody = document.getElementById('chatBody');
-const chatInput = document.getElementById('chatInput');
-const chatSend = document.getElementById('chatSend');
-let chatOpen = false;
-let chatBusy = false;
+        const panel = document.getElementById("spotPanel");
+        panel.innerHTML = "";
 
-gsap.set(chatWindow, { scale: .9, y: 16 });
+        const visible = city.spots.filter(
+          (s) => !activeFish || s.fish.includes(activeFish),
+        );
+        document.getElementById("resultsCount").innerHTML =
+          "<b>" +
+          visible.length +
+          "</b> ადგილი ნაპოვნია" +
+          (activeFish ? ' — "' + activeFish + '"' : "");
 
-chatToggle.addEventListener('click', () => {
-  chatOpen = !chatOpen;
-  if (chatOpen) {
-    chatWindow.classList.add('open');
-    gsap.to(chatWindow, { opacity: 1, scale: 1, y: 0, duration: .3, ease: 'back.out(1.5)' });
-    chatInput.focus();
-  } else {
-    gsap.to(chatWindow, {
-      opacity: 0, scale: .9, y: 16, duration: .2, ease: 'power2.in',
-      onComplete: () => chatWindow.classList.remove('open')
-    });
-  }
-});
+        visible.forEach((spot) => {
+          const gmapsUrl =
+            "https://www.google.com/maps/dir/?api=1&destination=" +
+            spot.lat +
+            "," +
+            spot.lng +
+            "&travelmode=driving";
+          const marker = L.marker([spot.lat, spot.lng], {
+            icon: fishMarkerIcon(),
+          }).addTo(map);
+          marker.bindPopup(
+            "<b>" +
+              spot.name +
+              "</b><br>" +
+              spot.desc +
+              "<br><br>" +
+              spot.fish.map((f) => "#" + f).join(" ") +
+              "<br>" +
+              '<a class="popup-directions" href="' +
+              gmapsUrl +
+              '" target="_blank" rel="noopener">📍 მარშრუტი Google Maps-ზე</a>',
+          );
+          markers.push(marker);
 
-function addMessage(text, from) {
-  const el = document.createElement('div');
-  el.className = 'msg ' + from;
-  el.textContent = text;
-  chatBody.appendChild(el);
-  gsap.from(el, { opacity: 0, y: 8, duration: .25 });
-  chatBody.scrollTop = chatBody.scrollHeight;
-  return el;
-}
+          const markerEl = marker.getElement();
+          if (markerEl)
+            gsap.from(markerEl, {
+              scale: 0,
+              y: -12,
+              duration: 0.4,
+              ease: "back.out(2)",
+              delay: 0.04 * markers.length,
+            });
 
-function addTypingIndicator() {
-  const el = document.createElement('div');
-  el.className = 'msg bot typing';
-  el.innerHTML = '<span></span><span></span><span></span>';
-  chatBody.appendChild(el);
-  gsap.to(el.children, { y: -4, duration: .4, repeat: -1, yoyo: true, stagger: .15 });
-  chatBody.scrollTop = chatBody.scrollHeight;
-  return el;
-}
+          const card = document.createElement("div");
+          card.className = "spot-card";
+          card.innerHTML =
+            '<div class="s-name">' +
+            spot.name +
+            "</div>" +
+            '<div class="s-desc">' +
+            spot.desc +
+            "</div>" +
+            '<div class="fish-tags">' +
+            spot.fish
+              .map(
+                (f) =>
+                  '<span class="fish-tag ' +
+                  (activeFish && activeFish !== f ? "dimmed" : "") +
+                  '">' +
+                  f +
+                  "</span>",
+              )
+              .join("") +
+            "</div>" +
+            '<div class="card-foot">' +
+            '<div class="coords">' +
+            spot.lat.toFixed(4) +
+            ", " +
+            spot.lng.toFixed(4) +
+            "</div>" +
+            '<a class="directions-btn" href="' +
+            gmapsUrl +
+            '" target="_blank" rel="noopener">მარშრუტი →</a>' +
+            "</div>";
 
-const systemPrompt = 'შენ ხარ "გუმბერი" — მეგობრული, გამოცდილი მეთევზის ასისტენტი საქართველოში. პასუხობ მხოლოდ ქართულად, მოკლედ და პრაქტიკულად (მაქსიმუმ 4-5 წინადადება). გეხმარები სატყუარის შერჩევაში, სეზონურობაში, ამინდისა და დღის დროის რჩევებში, აღჭურვილობის რჩევებში და საქართველოს მდინარეების, ტბებისა და ზღვის სანაპიროს ზოგად ცოდნაში. თუ არ იცი კონკრეტული ადგილობრივი წესი, ურჩიე მომხმარებელს გადაამოწმოს ადგილობრივ საიტებზე.';
+          card.addEventListener("click", (e) => {
+            if (e.target.closest(".directions-btn")) return;
+            map.flyTo([spot.lat, spot.lng], Math.max(city.zoom, 12), {
+              duration: 0.7,
+            });
+            marker.openPopup();
+            [...panel.children].forEach((c) => c.classList.remove("active"));
+            card.classList.add("active");
+          });
+          panel.appendChild(card);
+        });
 
-async function sendChatMessage() {
-  const text = chatInput.value.trim();
-  if (!text || chatBusy) return;
-  chatBusy = true;
-  chatSend.disabled = true;
-  addMessage(text, 'user');
-  chatInput.value = '';
-  const typing = addTypingIndicator();
+        if (visible.length === 0) {
+          panel.innerHTML =
+            '<div class="empty-state">ამ თევზისთვის ამ ქალაქში ადგილი ვერ მოიძებნა.<br>სცადე სხვა ფილტრი.</div>';
+        } else {
+          gsap.from(panel.children, {
+            opacity: 0,
+            y: 12,
+            duration: 0.35,
+            stagger: 0.05,
+            ease: "power2.out",
+          });
+        }
+      }
 
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 400,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: text }]
-      })
-    });
-    const data = await response.json();
-    typing.remove();
-    const reply = data && data.content && data.content.find(b => b.type === 'text');
-    addMessage(reply ? reply.text : 'ბოდიში, პასუხის მიღება ვერ მოხერხდა — სცადე თავიდან.', 'bot');
-  } catch (e) {
-    typing.remove();
-    addMessage('კავშირის შეცდომა მოხდა — სცადე ცოტა ხანში თავიდან.', 'bot');
-  } finally {
-    chatBusy = false;
-    chatSend.disabled = false;
-  }
-}
+      const chatToggle = document.getElementById("chatToggle");
+      const chatWindow = document.getElementById("chatWindow");
+      const chatBody = document.getElementById("chatBody");
+      const chatInput = document.getElementById("chatInput");
+      const chatSend = document.getElementById("chatSend");
+      let chatOpen = false;
+      let chatBusy = false;
 
-chatSend.addEventListener('click', sendChatMessage);
-chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendChatMessage(); });
-</script>
-</body>
+      gsap.set(chatWindow, { scale: 0.9, y: 16 });
+
+      chatToggle.addEventListener("click", () => {
+        chatOpen = !chatOpen;
+        if (chatOpen) {
+          chatWindow.classList.add("open");
+          gsap.to(chatWindow, {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.3,
+            ease: "back.out(1.5)",
+          });
+          chatInput.focus();
+        } else {
+          gsap.to(chatWindow, {
+            opacity: 0,
+            scale: 0.9,
+            y: 16,
+            duration: 0.2,
+            ease: "power2.in",
+            onComplete: () => chatWindow.classList.remove("open"),
+          });
+        }
+      });
+
+      function addMessage(text, from) {
+        const el = document.createElement("div");
+        el.className = "msg " + from;
+        el.textContent = text;
+        chatBody.appendChild(el);
+        gsap.from(el, { opacity: 0, y: 8, duration: 0.25 });
+        chatBody.scrollTop = chatBody.scrollHeight;
+        return el;
+      }
+
+      function addTypingIndicator() {
+        const el = document.createElement("div");
+        el.className = "msg bot typing";
+        el.innerHTML = "<span></span><span></span><span></span>";
+        chatBody.appendChild(el);
+        gsap.to(el.children, {
+          y: -4,
+          duration: 0.4,
+          repeat: -1,
+          yoyo: true,
+          stagger: 0.15,
+        });
+        chatBody.scrollTop = chatBody.scrollHeight;
+        return el;
+      }
+
+      const systemPrompt =
+        'შენ ხარ "გუმბერი" — მეგობრული, გამოცდილი მეთევზის ასისტენტი საქართველოში. პასუხობ მხოლოდ ქართულად, მოკლედ და პრაქტიკულად (მაქსიმუმ 4-5 წინადადება). გეხმარები სატყუარის შერჩევაში, სეზონურობაში, ამინდისა და დღის დროის რჩევებში, აღჭურვილობის რჩევებში და საქართველოს მდინარეების, ტბებისა და ზღვის სანაპიროს ზოგად ცოდნაში. თუ არ იცი კონკრეტული ადგილობრივი წესი, ურჩიე მომხმარებელს გადაამოწმოს ადგილობრივ საიტებზე.';
+
+      async function sendChatMessage() {
+        const text = chatInput.value.trim();
+        if (!text || chatBusy) return;
+        chatBusy = true;
+        chatSend.disabled = true;
+        addMessage(text, "user");
+        chatInput.value = "";
+        const typing = addTypingIndicator();
+
+        try {
+          const response = await fetch(
+            "https://api.anthropic.com/v1/messages",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                model: "claude-sonnet-4-6",
+                max_tokens: 400,
+                system: systemPrompt,
+                messages: [{ role: "user", content: text }],
+              }),
+            },
+          );
+          const data = await response.json();
+          typing.remove();
+          const reply =
+            data && data.content && data.content.find((b) => b.type === "text");
+          addMessage(
+            reply
+              ? reply.text
+              : "ბოდიში, პასუხის მიღება ვერ მოხერხდა — სცადე თავიდან.",
+            "bot",
+          );
+        } catch (e) {
+          typing.remove();
+          addMessage(
+            "კავშირის შეცდომა მოხდა — სცადე ცოტა ხანში თავიდან.",
+            "bot",
+          );
+        } finally {
+          chatBusy = false;
+          chatSend.disabled = false;
+        }
+      }
+
+      chatSend.addEventListener("click", sendChatMessage);
+      chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendChatMessage();
+      });
+    </script>
+  </body>
 </html>
