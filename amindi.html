@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="ka">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ამინდი — სითევზე</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M4 20c6-9 12-9 18 0-6 9-12 9-18 0z' fill='%2300d2ff'/%3E%3Ccircle cx='10' cy='20' r='1.7' fill='%230a192f'/%3E%3Cpath d='M22 20c5 0 10-2.5 14-6-1 5-1 9 0 12-4-3.5-9-6-14-6z' fill='%2300d2ff' opacity='.75'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg: #0a192f;
+        --panel: #112a4a;
+        --panel-light: #163a63;
+        --dawn: #00d2ff;
+        --moss: #bfeaff;
+        --text: #f2f8ff;
+        --text-dim: #8fa9c7;
+        --line: rgba(0, 210, 255, 0.14);
+        --line-strong: rgba(0, 210, 255, 0.28);
+        --on-accent: #062032;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+      }
+      ::selection {
+        background: var(--dawn);
+        color: var(--on-accent);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 28px clamp(20px, 5vw, 64px) 18px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .brand svg {
+        width: 40px;
+        height: 40px;
+      }
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+      }
+      .brand-text .name {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.3rem;
+      }
+      .brand-text .tag {
+        font-size: 0.66rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-top: 4px;
+      }
+
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        color: var(--text);
+        font-family: "Inter";
+        font-size: 0.85rem;
+        padding: 9px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .nav-wrap {
+        position: relative;
+      }
+      .burger-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        width: 42px;
+        height: 42px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 0;
+      }
+      .burger-btn span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--dawn);
+        border-radius: 2px;
+        transition: transform 0.25s ease, opacity 0.2s ease;
+      }
+      .burger-btn.open span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+      .burger-btn.open span:nth-child(2) {
+        opacity: 0;
+      }
+      .burger-btn.open span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+
+      .nav-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 180px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        opacity: 0;
+        transform: translateY(-6px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 60;
+      }
+      .nav-menu.open {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .nav-menu a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 7px;
+        color: var(--text);
+        text-decoration: none;
+        font-family: "Inter";
+        font-size: 0.88rem;
+      }
+      .nav-menu a:hover {
+        background: var(--panel-light);
+        color: var(--dawn);
+      }
+      .nav-menu a svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--dawn);
+      }
+
+      main {
+        padding: 8px clamp(20px, 5vw, 64px) 64px;
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      .hero-copy {
+        margin: 34px 0 8px;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--dawn);
+      }
+      h1 {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.1;
+        margin: 14px 0 10px;
+      }
+      .hero-copy p {
+        color: var(--text-dim);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        max-width: 520px;
+      }
+
+      .weather-card {
+        margin-top: 28px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-radius: 18px;
+        padding: 30px;
+        min-height: 220px;
+        position: relative;
+      }
+
+      .state-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 14px;
+        padding: 30px 10px;
+        color: var(--text-dim);
+        font-size: 0.9rem;
+      }
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 3px solid var(--line-strong);
+        border-top-color: var(--dawn);
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .retry-btn {
+        margin-top: 6px;
+        background: var(--dawn);
+        color: var(--on-accent);
+        border: none;
+        font-family: "Inter";
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .weather-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .place {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.74rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+      }
+      .temp-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .temp-row svg {
+        width: 62px;
+        height: 62px;
+        color: var(--dawn);
+        flex-shrink: 0;
+      }
+      .temp {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 3.2rem;
+        line-height: 1;
+      }
+      .cond {
+        font-size: 0.95rem;
+        color: var(--text-dim);
+        margin-top: 6px;
+      }
+      .feels {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        margin-top: 4px;
+      }
+
+      .weather-grid {
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 18px;
+      }
+      .weather-grid .stat span {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-bottom: 4px;
+      }
+      .weather-grid .stat b {
+        font-family: "Fraunces", serif;
+        font-size: 1.3rem;
+        color: var(--dawn);
+        font-weight: 700;
+      }
+
+      .fish-rating {
+        margin-top: 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 18px;
+        border-radius: 12px;
+        border: 1px solid var(--rate-color, var(--line-strong));
+        background: var(--rate-bg, rgba(0, 210, 255, 0.08));
+      }
+      .fish-rating .rate-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--rate-color, var(--dawn));
+        color: var(--on-accent);
+        flex-shrink: 0;
+      }
+      .fish-rating .rate-icon svg {
+        width: 22px;
+        height: 22px;
+      }
+      .fish-rating .rate-label {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--rate-color, var(--dawn));
+      }
+      .fish-rating .rate-sub {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        margin-top: 2px;
+      }
+
+      .fish-tip {
+        margin-top: 14px;
+        background: rgba(0, 210, 255, 0.08);
+        border: 1px solid var(--line-strong);
+        border-radius: 12px;
+        padding: 16px 18px;
+        font-size: 0.86rem;
+        line-height: 1.55;
+        color: var(--text);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .fish-tip svg {
+        width: 22px;
+        height: 22px;
+        color: var(--dawn);
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .updated-row {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .updated-row .ts {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        color: var(--text-dim);
+      }
+      .refresh-btn {
+        background: var(--panel-light);
+        border: 1px solid var(--line-strong);
+        color: var(--text);
+        font-family: "Inter";
+        font-size: 0.78rem;
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .refresh-btn:hover {
+        border-color: var(--dawn);
+        color: var(--dawn);
+      }
+      .refresh-btn svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      footer {
+        margin: 6px clamp(20px, 5vw, 64px) 0;
+        padding: 18px 0 28px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="index.html">
+        <svg viewBox="0 0 40 40" fill="none">
+          <path d="M4 20c6-9 12-9 18 0-6 9-12 9-18 0z" fill="#00d2ff" />
+          <circle cx="10" cy="20" r="1.7" fill="#0a192f" />
+          <path
+            d="M22 20c5 0 10-2.5 14-6-1 5-1 9 0 12-4-3.5-9-6-14-6z"
+            fill="#00d2ff"
+            opacity=".75"
+          />
+        </svg>
+        <div class="brand-text">
+          <span class="name">სითევზე</span>
+          <span class="tag">უბრალოდ სითევზე</span>
+        </div>
+      </a>
+      <div class="header-right">
+        <a class="back-btn" href="index.html">← მთავარი</a>
+        <div class="nav-wrap">
+          <button class="burger-btn" id="navToggle" aria-label="მენიუ" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <nav class="nav-menu" id="navMenu">
+            <a href="amindi.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6-1.6A4 4 0 0 0 6 16" />
+                <path d="M8 19h.01M12 19h.01M16 19h.01" />
+              </svg>
+              ამინდი
+            </a>
+            <a href="dakhmareba.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" />
+                <path d="M12 17h.01" />
+              </svg>
+              დახმარება
+            </a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="hero-copy">
+        <div class="eyebrow">ცოცხალი მონაცემები · შენი მდებარეობა</div>
+        <h1>დღევანდელი <em style="color: var(--dawn); font-style: italic; font-weight: 500;">ამინდი</em></h1>
+        <p>
+          ამინდი აჩვენებს ნამდვილ, ცოცხალ მონაცემებს შენი მდებარეობის
+          მიხედვით — დაგვჭირდება წვდომა გეოლოკაციაზე.
+        </p>
+      </div>
+
+      <div class="weather-card" id="weatherCard">
+        <div class="state-box" id="stateBox">
+          <div class="spinner"></div>
+          <div>ვითხოვთ წვდომას შენს მდებარეობაზე...</div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <span>სითევზე</span>
+      <span>ამინდის მონაცემები · Open-Meteo</span>
+    </footer>
+
+    <script>
+      const navToggle = document.getElementById("navToggle");
+      const navMenu = document.getElementById("navMenu");
+      navToggle.addEventListener("click", () => {
+        const isOpen = navMenu.classList.toggle("open");
+        navToggle.classList.toggle("open", isOpen);
+        navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".nav-wrap")) {
+          navMenu.classList.remove("open");
+          navToggle.classList.remove("open");
+          navToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      const stateBox = document.getElementById("stateBox");
+      const weatherCard = document.getElementById("weatherCard");
+
+      const WEATHER_CODES = {
+        0: ["მზიანი", "sun"],
+        1: ["ძირითადად მზიანი", "sun"],
+        2: ["ნაწილობრივ ღრუბლიანი", "cloud-sun"],
+        3: ["მოღრუბლული", "cloud"],
+        45: ["ნისლიანი", "fog"],
+        48: ["ხშირი ნისლი", "fog"],
+        51: ["სუსტი ცრიმატება", "rain"],
+        53: ["ზომიერი ცრიმატება", "rain"],
+        55: ["ძლიერი ცრიმატება", "rain"],
+        56: ["გაყინული წვიმა", "rain"],
+        57: ["ძლიერი გაყინული წვიმა", "rain"],
+        61: ["სუსტი წვიმა", "rain"],
+        63: ["ზომიერი წვიმა", "rain"],
+        65: ["ძლიერი წვიმა", "rain"],
+        66: ["გაყინული წვიმა", "rain"],
+        67: ["ძლიერი გაყინული წვიმა", "rain"],
+        71: ["სუსტი თოვლი", "snow"],
+        73: ["ზომიერი თოვლი", "snow"],
+        75: ["ძლიერი თოვლი", "snow"],
+        77: ["თოვლის მარცვლები", "snow"],
+        80: ["სუსტი წვიმის შხაპუნები", "rain"],
+        81: ["ზომიერი წვიმის შხაპუნები", "rain"],
+        82: ["ძლიერი წვიმის შხაპუნები", "rain"],
+        85: ["სუსტი თოვლის შხაპუნები", "snow"],
+        86: ["ძლიერი თოვლის შხაპუნები", "snow"],
+        95: ["ჭექა-ქუხილი", "storm"],
+        96: ["ჭექა-ქუხილი სეტყვით", "storm"],
+        99: ["ძლიერი ჭექა-ქუხილი სეტყვით", "storm"],
+      };
+
+      const ICONS = {
+        sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M22 12h-2.5M4.5 12H2M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8M19.1 19.1l-1.8-1.8M6.7 6.7 4.9 4.9"/>',
+        "cloud-sun": '<circle cx="8" cy="9" r="3.2"/><path d="M8 2.5v1.6M13.5 9H15M4 6.6l1.2 1.1M2.8 12l1.6-.4"/><path d="M8.5 18.5h9a3.6 3.6 0 0 0 .4-7.2 5 5 0 0 0-9.6-1.4A4 4 0 0 0 8.5 18.5z"/>',
+        cloud: '<path d="M6.5 18.5h11a3.6 3.6 0 0 0 .4-7.2 5.5 5.5 0 0 0-10.6-1.6A4 4 0 0 0 6.5 18.5z"/>',
+        fog: '<path d="M4 8.5h16M3 12.5h13M4 16.5h16M9 20.5h9"/>',
+        rain: '<path d="M6.5 14.5h11a3.6 3.6 0 0 0 .4-7.2 5.5 5.5 0 0 0-10.6-1.6A4 4 0 0 0 6.5 14.5z"/><path d="M8 18v2.5M12 18v2.5M16 18v2.5"/>',
+        snow: '<path d="M6.5 12.5h11a3.6 3.6 0 0 0 .4-7.2 5.5 5.5 0 0 0-10.6-1.6A4 4 0 0 0 6.5 12.5z"/><path d="M8 17l.01.01M12 17l.01.01M16 17l.01.01M8 20l.01.01M12 20l.01.01M16 20l.01.01"/>',
+        storm: '<path d="M6.5 12.5h11a3.6 3.6 0 0 0 .4-7.2 5.5 5.5 0 0 0-10.6-1.6A4 4 0 0 0 6.5 12.5z"/><path d="M13 16.5l-2.5 4h3l-2 3.5"/>',
+      };
+
+      function iconSvg(key, size) {
+        return (
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" ' +
+          (size ? 'style="width:' + size + 'px;height:' + size + 'px"' : "") +
+          ">" +
+          (ICONS[key] || ICONS.cloud) +
+          "</svg>"
+        );
+      }
+
+      function fishingTip(code, wind) {
+        if ([95, 96, 99].includes(code)) {
+          return "ჭექა-ქუხილის დროს თევზაობა სახიფათოა — გამოსვლა გადადე, სანამ ამინდი დამშვიდდება.";
+        }
+        if (wind >= 35) {
+          return "ძლიერი ქარია — ნაპირზე ან დაცულ ადგილას თევზაობა უფრო უსაფრთხო იქნება.";
+        }
+        if ([51, 53, 61, 63, 80, 81].includes(code)) {
+          return "სუსტი წვიმა ხშირად კარგი დროა თევზაობისთვის — თევზი უფრო აქტიურია ღრუბლიან ამინდში.";
+        }
+        if (code === 0 || code === 1) {
+          if (wind < 15) {
+            return "მშვიდი, მზიანი ამინდია — კარგი დროა გამოსვლისთვის, განსაკუთრებით დილით ადრე ან საღამოს.";
+          }
+          return "მზიანია, თუმცა ცოტა ქარიანი — აირჩიე დაცული ნაპირი.";
+        }
+        return "ზომიერი პირობებია თევზაობისთვის — გადაამოწმე ადგილობრივი პირობებიც გასვლამდე.";
+      }
+
+      function fishingRating(code, wind, precip) {
+        const bad = [95, 96, 99];
+        const heavy = [65, 67, 75, 82, 86];
+        if (bad.includes(code) || wind >= 40) {
+          return {
+            level: "poor",
+            label: "ცუდია თევზაობისთვის",
+            sub: "ჭექა-ქუხილი ან ძალიან ძლიერი ქარი — გამოსვლა არ ღირს.",
+            color: "#ff8a65",
+            icon: '<path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/>',
+          };
+        }
+        if (heavy.includes(code) || wind >= 25 || precip >= 4) {
+          return {
+            level: "moderate",
+            label: "საშუალო პირობებია",
+            sub: "შესაძლებელია, მაგრამ საჭიროა სიფრთხილე — აირჩიე დაცული ადგილი.",
+            color: "#ffd166",
+            icon: '<path d="M12 9v4M12 16.5h.01"/><path d="M10.3 3.9 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+          };
+        }
+        return {
+          level: "good",
+          label: "კარგია თევზაობისთვის",
+          sub: "მშვიდი პირობებია — კარგი დროა გასასვლელად.",
+          color: "#00d2ff",
+          icon: '<path d="M20 6 9 17l-5-5"/>',
+        };
+      }
+
+      function windDir(deg) {
+        const dirs = ["ჩ", "ჩა", "ა", "სა", "ს", "სდ", "დ", "ჩდ"];
+        return dirs[Math.round(deg / 45) % 8];
+      }
+
+
+      function renderError(message, showRetry) {
+        stateBox.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px;color:var(--dawn)"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>' +
+          '<div>' + message + '</div>' +
+          (showRetry ? '<button class="retry-btn" id="retryBtn">ცადე ისევ</button>' : "");
+        weatherCard.innerHTML = "";
+        weatherCard.appendChild(stateBox);
+        if (showRetry) {
+          document.getElementById("retryBtn").addEventListener("click", start);
+        }
+      }
+
+      async function reverseGeocode(lat, lon) {
+        try {
+          const res = await fetch(
+            "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
+              lat +
+              "&lon=" +
+              lon +
+              "&accept-language=ka,en",
+          );
+          const data = await res.json();
+          const a = data.address || {};
+          return (
+            a.city ||
+            a.town ||
+            a.village ||
+            a.municipality ||
+            a.county ||
+            data.name ||
+            "შენი მდებარეობა"
+          );
+        } catch (e) {
+          return "შენი მდებარეობა";
+        }
+      }
+
+      async function loadWeather(lat, lon) {
+        const [placeName, weatherRes] = await Promise.all([
+          reverseGeocode(lat, lon),
+          fetch(
+            "https://api.open-meteo.com/v1/forecast?latitude=" +
+              lat +
+              "&longitude=" +
+              lon +
+              "&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m&timezone=auto",
+          ),
+        ]);
+
+        if (!weatherRes.ok) throw new Error("weather-fetch-failed");
+        const data = await weatherRes.json();
+        const cur = data.current;
+        const code = cur.weather_code;
+        const [label, iconKey] = WEATHER_CODES[code] || ["ამინდი", "cloud"];
+
+        const now = new Date();
+        const ts = now.toLocaleTimeString("ka-GE", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const rating = fishingRating(code, cur.wind_speed_10m, cur.precipitation);
+
+        weatherCard.innerHTML =
+          '<div class="weather-main">' +
+          '<div>' +
+          '<div class="place">' +
+          placeName +
+          "</div>" +
+          '<div class="temp-row">' +
+          iconSvg(iconKey, 62) +
+          '<div><div class="temp">' +
+          Math.round(cur.temperature_2m) +
+          "°</div></div>" +
+          "</div>" +
+          '<div class="cond">' +
+          label +
+          "</div>" +
+          '<div class="feels">იგრძნობა როგორც ' +
+          Math.round(cur.apparent_temperature) +
+          "°</div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="weather-grid">' +
+          '<div class="stat"><span>ტენიანობა</span><b>' +
+          Math.round(cur.relative_humidity_2m) +
+          "%</b></div>" +
+          '<div class="stat"><span>ქარი</span><b>' +
+          Math.round(cur.wind_speed_10m) +
+          " კმ/სთ</b></div>" +
+          '<div class="stat"><span>ქარის მიმართ.</span><b>' +
+          windDir(cur.wind_direction_10m) +
+          "</b></div>" +
+          '<div class="stat"><span>ნალექი</span><b>' +
+          cur.precipitation +
+          " მმ</b></div>" +
+          "</div>" +
+          '<div class="fish-rating" style="--rate-color:' +
+          rating.color +
+          '; --rate-bg:' +
+          rating.color +
+          '1a;">' +
+          '<div class="rate-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          rating.icon +
+          "</svg></div>" +
+          '<div><div class="rate-label">' +
+          rating.label +
+          "</div>" +
+          '<div class="rate-sub">' +
+          rating.sub +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="fish-tip">' +
+          iconSvg("cloud-sun", 22) +
+          "<div>" +
+          fishingTip(code, cur.wind_speed_10m) +
+          "</div>" +
+          "</div>" +
+          '<div class="updated-row">' +
+          '<span class="ts">განახლდა ' +
+          ts +
+          "</span>" +
+          '<button class="refresh-btn" id="refreshBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>განახლება</button>' +
+          "</div>";
+
+        document.getElementById("refreshBtn").addEventListener("click", () => {
+          weatherCard.innerHTML = "";
+          weatherCard.appendChild(stateBox);
+          stateBox.innerHTML =
+            '<div class="spinner"></div><div>ვანახლებთ...</div>';
+          loadWeather(lat, lon).catch(() =>
+            renderError("ამინდის მონაცემების მიღება ვერ მოხერხდა.", true),
+          );
+        });
+
+        gsap.from(weatherCard.children, {
+          opacity: 0,
+          y: 10,
+          duration: 0.4,
+          stagger: 0.06,
+          ease: "power2.out",
+        });
+      }
+
+      function start() {
+        weatherCard.innerHTML = "";
+        weatherCard.appendChild(stateBox);
+        stateBox.innerHTML =
+          '<div class="spinner"></div><div>ვითხოვთ წვდომას შენს მდებარეობაზე...</div>';
+
+        if (!navigator.geolocation) {
+          renderError("შენი ბრაუზერი გეოლოკაციას არ უჭერს მხარს.", false);
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            stateBox.innerHTML =
+              '<div class="spinner"></div><div>ვტვირთავთ ამინდის მონაცემებს...</div>';
+            loadWeather(pos.coords.latitude, pos.coords.longitude).catch(() =>
+              renderError("ამინდის მონაცემების მიღება ვერ მოხერხდა.", true),
+            );
+          },
+          (err) => {
+            renderError(
+              "მდებარეობაზე წვდომა უარყოფილია. დაუშვი წვდომა ბრაუზერის პარამეტრებში და სცადე თავიდან.",
+              true,
+            );
+          },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+        );
+      }
+
+      start();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="ka">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>დახმარება — სითევზე</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M4 20c6-9 12-9 18 0-6 9-12 9-18 0z' fill='%2300d2ff'/%3E%3Ccircle cx='10' cy='20' r='1.7' fill='%230a192f'/%3E%3Cpath d='M22 20c5 0 10-2.5 14-6-1 5-1 9 0 12-4-3.5-9-6-14-6z' fill='%2300d2ff' opacity='.75'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a192f;
+        --panel: #112a4a;
+        --panel-light: #163a63;
+        --dawn: #00d2ff;
+        --moss: #bfeaff;
+        --text: #f2f8ff;
+        --text-dim: #8fa9c7;
+        --line: rgba(0, 210, 255, 0.14);
+        --line-strong: rgba(0, 210, 255, 0.28);
+        --on-accent: #062032;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+      }
+      ::selection {
+        background: var(--dawn);
+        color: var(--on-accent);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 28px clamp(20px, 5vw, 64px) 18px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .brand svg {
+        width: 40px;
+        height: 40px;
+      }
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+      }
+      .brand-text .name {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.3rem;
+      }
+      .brand-text .tag {
+        font-size: 0.66rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-top: 4px;
+      }
+
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        color: var(--text);
+        font-family: "Inter";
+        font-size: 0.85rem;
+        padding: 9px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .nav-wrap {
+        position: relative;
+      }
+      .burger-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        width: 42px;
+        height: 42px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 0;
+      }
+      .burger-btn span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: var(--dawn);
+        border-radius: 2px;
+        transition: transform 0.25s ease, opacity 0.2s ease;
+      }
+      .burger-btn.open span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+      .burger-btn.open span:nth-child(2) {
+        opacity: 0;
+      }
+      .burger-btn.open span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+
+      .nav-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        min-width: 180px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        opacity: 0;
+        transform: translateY(-6px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 60;
+      }
+      .nav-menu.open {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .nav-menu a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 7px;
+        color: var(--text);
+        text-decoration: none;
+        font-family: "Inter";
+        font-size: 0.88rem;
+      }
+      .nav-menu a:hover {
+        background: var(--panel-light);
+        color: var(--dawn);
+      }
+      .nav-menu a svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--dawn);
+      }
+
+      main {
+        padding: 8px clamp(20px, 5vw, 64px) 64px;
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      .hero-copy {
+        margin: 34px 0 8px;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--dawn);
+      }
+      h1 {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.1;
+        margin: 14px 0 10px;
+      }
+      .hero-copy p {
+        color: var(--text-dim);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        max-width: 560px;
+      }
+
+      .help-section {
+        margin-top: 30px;
+        background: var(--panel);
+        border: 1px solid var(--line-strong);
+        border-radius: 16px;
+        padding: 24px 26px;
+      }
+      .help-section + .help-section {
+        margin-top: 18px;
+      }
+      .help-section .head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .help-section .head svg {
+        width: 22px;
+        height: 22px;
+        color: var(--dawn);
+        flex-shrink: 0;
+      }
+      .help-section h2 {
+        font-family: "Fraunces", serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+      }
+      .help-section p,
+      .help-section li {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        line-height: 1.65;
+      }
+      .help-section ul {
+        padding-left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .help-section li b {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      footer {
+        margin: 6px clamp(20px, 5vw, 64px) 0;
+        padding: 18px 0 28px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: space-between;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="index.html">
+        <svg viewBox="0 0 40 40" fill="none">
+          <path d="M4 20c6-9 12-9 18 0-6 9-12 9-18 0z" fill="#00d2ff" />
+          <circle cx="10" cy="20" r="1.7" fill="#0a192f" />
+          <path
+            d="M22 20c5 0 10-2.5 14-6-1 5-1 9 0 12-4-3.5-9-6-14-6z"
+            fill="#00d2ff"
+            opacity=".75"
+          />
+        </svg>
+        <div class="brand-text">
+          <span class="name">სითევზე</span>
+          <span class="tag">უბრალოდ სითევზე</span>
+        </div>
+      </a>
+      <div class="header-right">
+        <a class="back-btn" href="index.html">← მთავარი</a>
+        <div class="nav-wrap">
+          <button class="burger-btn" id="navToggle" aria-label="მენიუ" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <nav class="nav-menu" id="navMenu">
+            <a href="amindi.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6-1.6A4 4 0 0 0 6 16" />
+                <path d="M8 19h.01M12 19h.01M16 19h.01" />
+              </svg>
+              ამინდი
+            </a>
+            <a href="dakhmareba.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4" />
+                <path d="M12 17h.01" />
+              </svg>
+              დახმარება
+            </a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="hero-copy">
+        <div class="eyebrow">კითხვები · პასუხები</div>
+        <h1>დახმარება</h1>
+        <p>
+          მოკლე გზამკვლევი, თუ როგორ გამოვიყენოთ „სითევზე“ — ქალაქების
+          არჩევიდან თევზაობის ადგილების პოვნამდე.
+        </p>
+      </div>
+
+      <section class="help-section">
+        <div class="head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <h2>ქალაქის არჩევა</h2>
+        </div>
+        <p>
+          მთავარ გვერდზე რუკაზე ანათებს ის ქალაქები, რომლებზეც სათევზაო
+          ინფორმაცია გვაქვს. დააჭირე ანათებულ ფორმას და გაიხსნება ამ
+          ქალაქის საკუთარი რუკა, სათევზაო წერტილებით.
+        </p>
+      </section>
+
+      <section class="help-section">
+        <div class="head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg>
+          <h2>ფილტრები და ადგილები</h2>
+        </div>
+        <ul>
+          <li><b>თევზის ფილტრი</b> — აირჩიე თევზის სახეობა, რომ ნახო მხოლოდ შესაბამისი ადგილები.</li>
+          <li><b>რუკის მარკერი</b> — დააჭირე მარკერს პოპაპისთვის, ან სიაში ბარათს — რუკა თავად გადაინაცვლებს.</li>
+          <li><b>მარშრუტი</b> — თითოეულ ადგილს აქვს „მარშრუტი“ ღილაკი, რომელიც Google Maps-ში ხსნის მიმართულებას.</li>
+        </ul>
+      </section>
+
+      <section class="help-section">
+        <div class="head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6-1.6A4 4 0 0 0 6 16" />
+            <path d="M8 19h.01M12 19h.01M16 19h.01" />
+          </svg>
+          <h2>ამინდის გვერდი</h2>
+        </div>
+        <p>
+          „ამინდის“ გვერდი აჩვენებს ცოცხალ ამინდს შენი მდებარეობის
+          მიხედვით — საჭირო იქნება ბრაუზერის დაშვება გეოლოკაციაზე. თუ
+          წვდომას შემთხვევით უარყოფ, გვერდზე „ცადე ისევ“ ღილაკით
+          შეგიძლია თავიდან სცადო.
+        </p>
+      </section>
+
+      <section class="help-section">
+        <div class="head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <h2>ჩატბოტი „გუმბერი“</h2>
+        </div>
+        <p>
+          მთავარი გვერდის ქვედა კუთხეში მდებარე ღილაკი ხსნის ჩატს
+          გუმბერთან — AI ასისტენტთან, რომელსაც შეგიძლია ჰკითხო
+          სატყუარაზე, სეზონურობაზე, ამინდსა თუ აღჭურვილობაზე.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span>სითევზე</span>
+      <span>დახმარების გვერდი</span>
+    </footer>
+
+    <script>
+      const navToggle = document.getElementById("navToggle");
+      const navMenu = document.getElementById("navMenu");
+      navToggle.addEventListener("click", () => {
+        const isOpen = navMenu.classList.toggle("open");
+        navToggle.classList.toggle("open", isOpen);
+        navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".nav-wrap")) {
+          navMenu.classList.remove("open");
+          navToggle.classList.remove("open");
+          navToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    </script>
+  </body>
+</html>
